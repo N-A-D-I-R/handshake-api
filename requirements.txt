@@ -1,0 +1,9 @@
+uvicorn
+fastapi
+pydantic
+sqlalchemy[asyncio]
+aiosqlite
+PyJWT
+asyncpg
+alembic
+psycopg
