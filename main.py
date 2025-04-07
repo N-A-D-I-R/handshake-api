@@ -1,6 +1,6 @@
-from database import Base, engine
 from fastapi import FastAPI
-from app.router import router
+from routes.AuthRoutes import router as auth_router
+from routes.PostsRoutes import router as post_router
 
 import logging
 
@@ -26,9 +26,7 @@ async def lifespan(app: FastAPI):
     logger.info("🛑 Завершение работы приложения...")
     # Здесь можно закрыть соединения, удалить временные файлы и т. д.
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(title="Handshake", description="...", openapi_prefix="/v1", lifespan=lifespan)
  
-app.include_router(router)
-
-
-  
+app.include_router(auth_router)
+app.include_router(post_router)
