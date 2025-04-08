@@ -8,7 +8,9 @@ WORKDIR /app
 COPY . .
 
 # Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+RUN DEBIAN_FRONTEND=noninteractive apt update && \
+apt install -y python3-pip && \
+pip install --no-cache-dir -r requirements.txt
 
 # Экспортируем переменные окружения из .env файла
 COPY .env .env
