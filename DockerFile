@@ -1,22 +1,21 @@
-# Используем базовый образ Python
-FROM python:3.11.2
+# Используем официальный минимальный Python-образ
+FROM python:3.11-slim
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы проекта в контейнер
+# Копируем файл зависимостей сначала (для кэширования слоёв)
+COPY requirements.txt .
+
+# Устанавливаем pip и зависимости
+RUN apt update && apt install -y gcc libpq-dev && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Копируем оставшиеся файлы проекта
 COPY . .
-
-# Устанавливаем зависимости
-RUN DEBIAN_FRONTEND=noninteractive apt update && \
-apt install -y python3-pip && \
-pip install --no-cache-dir -r requirements.txt
-
-# Экспортируем переменные окружения
-ENV $(cat .env | xargs)
 
 # Открываем порт
 EXPOSE 8000
 
-# Команда для запуска вашего приложения
+# Запуск приложения
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
