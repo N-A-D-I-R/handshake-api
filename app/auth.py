@@ -6,7 +6,13 @@ import logging
 from fastapi import HTTPException, status
 from datetime import datetime, timedelta, timezone
 
-from settings import JWT_SECRET, JWT_ALGORITHM
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 logger = logging.getLogger(__name__)
 
