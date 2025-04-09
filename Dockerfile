@@ -7,15 +7,18 @@ WORKDIR /app
 # Копируем только файл зависимостей сначала
 COPY requirements.txt .
 
-# Устанавливаем нужные зависимости
-RUN apt update && \
-    apt install -y gcc libpq-dev libssl-dev build-essential && \
+# Обновляем apt и устанавливаем необходимые пакеты для сборки зависимостей
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc libpq-dev libssl-dev build-essential && \
+    # Устанавливаем Python-пакеты
     pip install --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt && \
+    # Очищаем кэш apt
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Копируем весь проект
+# Копируем весь проект в контейнер
 COPY . .
 
 # Открываем порт
