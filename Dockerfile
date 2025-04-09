@@ -22,7 +22,7 @@ RUN apt-get update && \
 COPY . .
 
 # Открываем порт
-EXPOSE 8000
+EXPOSE 5432
 
 # Устанавливаем переменные окружения для настройки среды
 ENV ENVIRONMENT=development
