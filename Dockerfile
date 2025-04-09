@@ -8,7 +8,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Устанавливаем нужные зависимости
-RUN apt update && apt install -y gcc libpq-dev && \
+RUN apt update && \
+    apt install -y gcc libpq-dev libssl-dev build-essential && \
+    pip install --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt
 
 # Копируем весь проект

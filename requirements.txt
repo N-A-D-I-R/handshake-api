@@ -3,7 +3,7 @@ fastapi
 pydantic
 sqlalchemy[asyncio]
 aiosqlite
-PyJWT
+pyjwt
 asyncpg
 alembic
 psycopg
