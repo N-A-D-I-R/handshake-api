@@ -1,3 +1,12 @@
+FROM handshake-api
+
+# Объявляем переменные окружения
+ENV JWT_SECRET=${JWT_SECRET}
+ENV JWT_ALGORITHM=${JWT_ALGORITHM}
+ENV POSTGRESQL_DATABASE_URL=${POSTGRESQL_DATABASE_URL}
+ENV DEBUG=${DEBUG}
+ENV PORT=${PORT}
+
 # Используем официальный минимальный Python-образ
 FROM python:3.11-slim
 
@@ -28,4 +37,4 @@ EXPOSE 5432
 ENV ENVIRONMENT=development
 
 # Запускаем FastAPI-приложение с учетом среды
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
