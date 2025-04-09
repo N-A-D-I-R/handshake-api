@@ -11,7 +11,9 @@ COPY requirements.txt .
 RUN apt update && \
     apt install -y gcc libpq-dev libssl-dev build-essential && \
     pip install --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Копируем весь проект
 COPY . .
@@ -19,5 +21,8 @@ COPY . .
 # Открываем порт
 EXPOSE 8000
 
-# Запускаем FastAPI-приложение
+# Устанавливаем переменные окружения для настройки среды
+ENV ENVIRONMENT=development
+
+# Запускаем FastAPI-приложение с учетом среды
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
