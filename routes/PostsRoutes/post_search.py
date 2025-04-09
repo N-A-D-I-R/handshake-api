@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, text
 
-from database import get_db
+from app.database import get_db
 from app.models import Post
 from app.schemas import PostSchema
 

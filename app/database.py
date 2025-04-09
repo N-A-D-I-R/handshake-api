@@ -3,7 +3,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.models import Base
+from .models import Base
 
 import os
 from dotenv import load_dotenv

@@ -1,12 +1,3 @@
-FROM handshake-api
-
-# Объявляем переменные окружения
-ENV JWT_SECRET=${JWT_SECRET}
-ENV JWT_ALGORITHM=${JWT_ALGORITHM}
-ENV POSTGRESQL_DATABASE_URL=${POSTGRESQL_DATABASE_URL}
-ENV DEBUG=${DEBUG}
-ENV PORT=${PORT}
-
 # Используем официальный минимальный Python-образ
 FROM python:3.11-slim
 
@@ -31,10 +22,15 @@ RUN apt-get update && \
 COPY . .
 
 # Открываем порт
-EXPOSE 5432
+EXPOSE 8000
 
 # Устанавливаем переменные окружения для настройки среды
 ENV ENVIRONMENT=development
+ENV JWT_SECRET=${JWT_SECRET}
+ENV JWT_ALGORITHM=${JWT_ALGORITHM}
+ENV POSTGRESQL_DATABASE_URL=${POSTGRESQL_DATABASE_URL}
+ENV DEBUG=${DEBUG}
+ENV PORT=${PORT}
 
 # Запускаем FastAPI-приложение с учетом среды
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

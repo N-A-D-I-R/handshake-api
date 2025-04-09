@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Annotated
 
-from app.models import User, Post
-from app.auth import get_jwt_data
-from database import get_db
+from .models import User, Post
+from .auth import get_jwt_data
+from .database import get_db
 
 logger = logging.getLogger(__name__)
 
