@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -20,7 +21,10 @@ class Post(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False, index=True)
-    text = Column(Text, nullable=False)
+
+    need = Column(Text, nullable=False)
+    offer = Column(Text, nullable=False)
+    
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     search_vector = Column(TSVECTOR, index=True)
     
@@ -30,3 +34,14 @@ class Post(Base):
         Index("ix_post_title_trgm", title, postgresql_using="gin", postgresql_ops={"title": "gin_trgm_ops"}),
         Index("ix_post_search_vector", search_vector, postgresql_using="gin")
     )
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, unique=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    user_agent = Column(Text)
+    ip_address = Column(String(45))  # IPv4 и IPv6
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)

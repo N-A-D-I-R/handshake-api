@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -10,7 +10,7 @@ from app.utils import get_current_user, verify_post_owner
 router = APIRouter(tags=["Posts"])
 
 @router.put("/posts/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Редактирование поста")
-async def edit_post(id: int, payload: PostCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def edit_post(id: int, payload: PostCreate = Query(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post).filter(Post.id == id))
     post = result.scalars().first()
 
@@ -19,8 +19,9 @@ async def edit_post(id: int, payload: PostCreate, current_user: User = Depends(g
 
     verify_post_owner(post, current_user)
 
-    post.text = payload.text
     post.title = payload.title
+    post.need = payload.need
+    post.offer = payload.offer
 
     await db.commit()
     await db.refresh(post)

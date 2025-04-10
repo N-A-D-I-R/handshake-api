@@ -2,8 +2,10 @@ import logging
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Depends, HTTPException, status
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
 from typing import Annotated
 
 from .models import User, Post
