@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 
 from app.database import get_db
 from app.models import RefreshToken
-from app.utils import get_jwt_data, bearer_scheme
+from app.utils import get_jwt_data, get_redis_connection, invalidate_access_token, bearer_scheme
 
 router = APIRouter(tags=["Auth"])
 
@@ -25,15 +25,23 @@ async def logout(
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Невалидный токен")
 
-    # Находим токен в базе данных
-    db_token = await db.execute(select(RefreshToken).where(RefreshToken.token == jwt_token))
-    db_token = db_token.scalars().first()
+    try:
 
-    if not db_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh токен не найден")
+        # Находим refresh токен в базе данных
+        db_refresh_token = await db.execute(select(RefreshToken).where(RefreshToken.user_id == user_id, RefreshToken.is_active == True))
+        db_refresh_token = db_refresh_token.scalars().first()
 
-    # Удаляем токен (или можно пометить его как неактивный)
-    await db.delete(db_token)
-    await db.commit()
+        if db_refresh_token:
+            # Помечаем токен как неактивный
+            db_refresh_token.is_active = False
+            await db.commit()
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Refresh токен не найден")
+
+        # Инвалидируем access token (добавляем в черный список)
+        await invalidate_access_token(jwt_token)
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     return {"detail": "Успешно!"}

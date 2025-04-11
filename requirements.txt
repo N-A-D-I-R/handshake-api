@@ -8,3 +8,4 @@ asyncpg
 alembic
 psycopg
 python-dotenv
+redis

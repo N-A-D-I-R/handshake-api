@@ -1,4 +1,5 @@
 import logging
+import redis.asyncio as redis
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Depends, HTTPException, status
@@ -23,7 +24,7 @@ async def get_current_user(
 ) -> User:
     jwt_token = credentials.credentials
 
-    data = get_jwt_data(jwt_token, "access")
+    data = get_jwt_data(jwt_token, "refresh")
 
     user_id = data.get("id")
     if not user_id:
@@ -35,6 +36,9 @@ async def get_current_user(
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalars().first()
+
+    if await is_token_blacklisted(jwt_token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен недействителен")
 
     if user is None:
         logger.warning(f"Пользователь с ID {user_id} не найден")
@@ -49,3 +53,20 @@ async def get_current_user(
 def verify_post_owner(post: Post, user: User):
     if post.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="У вас нет прав на редактирование этого поста")
+    
+# Настройка подключения к Redis
+async def get_redis_connection():
+    return await redis.from_url("redis://localhost")
+
+# Добавление токена в черный список
+async def invalidate_access_token(jwt_token: str, ttl: int = 1):
+    redis = await get_redis_connection()
+    await redis.set(jwt_token, "blacklisted", ex=ttl)
+    await redis.close()
+
+# Проверка токена на действительность
+async def is_token_blacklisted(jwt_token: str) -> bool:
+    redis = await get_redis_connection()
+    is_blacklisted = await redis.exists(jwt_token)
+    await redis.close()
+    return is_blacklisted
