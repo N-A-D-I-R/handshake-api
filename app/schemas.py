@@ -1,8 +1,22 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 from typing import List
 
+class UserRegister(BaseModel):
+    email: EmailStr = Field(..., description="Укажите ваш e-mail")
+    name: str = Field(..., min_length=3, max_length=50, description="Ваше имя")
+    password: str = Field(..., min_length=8, max_length=50, description="Придумайте пароль")
+
+class EmailCodeConfirm(BaseModel):
+    email: EmailStr
+    code: str = Field(..., min_length=6, max_length=6, description="Введите код подтверждения")
+
 class UserAuth(BaseModel):
-    auth_key: str = Field(..., min_length=16, max_length=16, description="Ключ авторизации пользователя")
+    email: EmailStr = Field(..., description="Введите e-mail")
+    password: str = Field(..., min_length=8, max_length=50, description="Введите пароль")
+
+class SuperUserAuth(BaseModel):
+    username: str = Field(..., description="Имя суперпользователя")
+    password: str = Field(..., min_length=8, max_length=50, description="Пароль суперпользователя")
 
 class TokenResponse(BaseModel):
     access_token: str

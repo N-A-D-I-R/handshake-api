@@ -18,7 +18,7 @@ async def login(
     user: UserAuth = Query(...),
     db: AsyncSession = Depends(get_db)
 ):
-    existing_user = await db.execute(select(User).filter(User.auth_key == user.auth_key))
+    existing_user = await db.execute(select(User).filter(User.email == user.email and User.password == user.password))
     user = existing_user.scalars().first()
 
     if user:

@@ -1,3 +1,5 @@
+import string
+import random
 import logging
 import redis.asyncio as redis
 
@@ -53,6 +55,10 @@ async def get_current_user(
 def verify_post_owner(post: Post, user: User):
     if post.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="У вас нет прав на редактирование этого поста")
+    
+# Функция для генерации 6-значного кода
+def generate_auth_key() -> str:
+    return ''.join(random.choices(string.digits, k=6))
     
 # Настройка подключения к Redis
 async def get_redis_connection():

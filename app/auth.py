@@ -1,5 +1,3 @@
-import string
-import random
 import jwt
 import logging
 
@@ -16,15 +14,7 @@ JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 logger = logging.getLogger(__name__)
 
-# Функция для генерации 16-значного ключа
-
-
-def generate_auth_key() -> str:
-    return ''.join(random.choices(string.digits, k=16))
-
 # Функции создания токенов
-
-
 def create_token(user_id: int, token_type: str, lifetime: timedelta):
     payload = {
         "id": user_id,
