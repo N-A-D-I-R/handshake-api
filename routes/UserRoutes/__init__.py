@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from ..UserRoutes import account_create, account_verify, account_login, account_logout, account_refresh
+from ..UserRoutes import user_create, user_login, user_logout, user_refresh, user_verify
 
 router = APIRouter(prefix="/user")
-router.include_router(account_create.router)
-router.include_router(account_verify.router)
-router.include_router(account_login.router)
-router.include_router(account_logout.router)
-router.include_router(account_refresh.router)
+router.include_router(user_create.router)
+router.include_router(user_verify.router)
+router.include_router(user_login.router)
+router.include_router(user_logout.router)
+router.include_router(user_refresh.router)

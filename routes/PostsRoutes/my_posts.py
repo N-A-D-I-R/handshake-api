@@ -12,7 +12,7 @@ from app.utils import get_current_user
 router = APIRouter(tags=["Posts"])
 
 @router.get("/my", response_model=list[PostSchema], status_code=status.HTTP_200_OK, name="Список моих постов")
-async def get_my_posts(search: str = Query(..., description="Найти пост"), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_my_posts(search: str = Query(default=None, description="Найти пост"), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if search:
         result = await db.execute(text("""
             SELECT id, title, need, offer, user_id

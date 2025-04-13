@@ -26,7 +26,7 @@ async def approve_post(post_id: int, db: AsyncSession = Depends(get_db), superus
     # Отправляем уведомление автору на почту
     if author and author.email:
         from app.email import send_email, render_template
-        html_body = render_template("post_rejected.html", title=post.title)
+        html_body = render_template("post_approved.html", title=post.title)
         send_email(
             to=author.email,
             subject="Ваш пост отклонён",

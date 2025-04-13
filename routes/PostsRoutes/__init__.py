@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from routes.PostsRoutes import my_posts, post_create, post_delete, post_edit
+from ..PostsRoutes import my_posts, post_create, post_delete, post_edit
 
 router = APIRouter(prefix="/posts")
 router.include_router(my_posts.router)

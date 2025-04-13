@@ -4,6 +4,7 @@ from routes.UserRoutes import router as user_router
 from routes.PostsRoutes import router as post_router
 from routes.SuperuserRoutes import router as superuser_router
 from routes.ModerationRoutes import router as moderation_router
+from routes.NotificationRoutes import router as notification_router
 
 import logging
 import asyncio
@@ -60,3 +61,4 @@ app.include_router(user_router)
 app.include_router(post_router)
 app.include_router(superuser_router)
 app.include_router(moderation_router)
+app.include_router(notification_router)

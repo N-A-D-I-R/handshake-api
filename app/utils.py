@@ -1,7 +1,6 @@
 import string
 import random
 import logging
-import redis.asyncio as redis
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Depends, HTTPException, status
@@ -14,7 +13,7 @@ from passlib.hash import bcrypt
 from typing import Annotated
 
 from .models import User, SuperUser, Post
-from .auth import get_jwt_data
+from .auth import get_jwt_data, is_token_blacklisted
 from .database import get_db
 
 logger = logging.getLogger(__name__)
@@ -57,10 +56,9 @@ async def get_current_superuser(
 ) -> SuperUser:
     jwt_token = credentials.credentials
 
-    # Тут обязательно проверяем access токен
     data = get_jwt_data(jwt_token, "access")
-
     superuser_id = data.get("id")
+
     if not superuser_id:
         logger.warning("JWT не содержит ID суперпользователя")
         raise HTTPException(status_code=401, detail="Недействительный токен")
@@ -71,6 +69,9 @@ async def get_current_superuser(
     if not superuser:
         logger.warning(f"Суперпользователь с ID {superuser_id} не найден")
         raise HTTPException(status_code=401, detail="Суперпользователь не найден")
+    
+    if await is_token_blacklisted(jwt_token):
+        raise HTTPException(status_code=401, detail="Токен недействителен")
 
     return superuser
 
@@ -90,24 +91,8 @@ def verify_post_owner(post: Post, user: User):
 # Функция для генерации 6-значного кода
 def generate_auth_key() -> str:
     return ''.join(random.choices(string.digits, k=6))
-    
-# Настройка подключения к Redis
-async def get_redis_connection():
-    return await redis.from_url("redis://localhost")
 
-# Добавление токена в черный список
-async def invalidate_access_token(jwt_token: str, ttl: int = 1):
-    redis = await get_redis_connection()
-    await redis.set(jwt_token, "blacklisted", ex=ttl)
-    await redis.close()
-
-# Проверка токена на действительность
-async def is_token_blacklisted(jwt_token: str) -> bool:
-    redis = await get_redis_connection()
-    is_blacklisted = await redis.exists(jwt_token)
-    await redis.close()
-    return is_blacklisted
-
+# Создание уведомления
 async def create_notification(user_id: int, title: str, message: str, db: AsyncSession):
     from app.models import Notification
     notification = Notification(user_id=user_id, title=title, message=message)

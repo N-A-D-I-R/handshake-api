@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 from dotenv import load_dotenv
 
 # Загружаем переменные окружения из .env файла
-load_dotenv() 
+load_dotenv(override=True) 
 
 env = Environment(loader=FileSystemLoader("templates/emails"))
 

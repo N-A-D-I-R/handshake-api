@@ -1,7 +1,9 @@
 import jwt
 import logging
 
-from fastapi import HTTPException, status
+import redis.asyncio as redis
+
+from fastapi import HTTPException, Request, status
 from datetime import datetime, timedelta, timezone
 
 import os
@@ -11,6 +13,7 @@ load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
+REDIS_URL = os.getenv("REDIS_URL")
 
 logger = logging.getLogger(__name__)
 
@@ -55,3 +58,28 @@ def get_jwt_data(jwt_token: str, token_type: str):
             detail="Неверный тип токена"
         )
     return data
+
+# Настройка подключения к Redis
+async def get_redis_connection():
+    return await redis.from_url(REDIS_URL, decode_responses=True)
+
+# Добавление токена в черный список
+async def invalidate_access_token(jwt_token: str, ttl: int = 3600):
+    redis = await get_redis_connection()
+    await redis.set(jwt_token, "blacklisted", ex=ttl)
+    await redis.close()
+
+# Проверка токена на действительность
+async def is_token_blacklisted(jwt_token: str) -> bool:
+    redis = await get_redis_connection()
+    is_blacklisted = await redis.exists(jwt_token)
+    print(f"[Redis] Проверка токена {jwt_token} → {'в blacklist' if is_blacklisted else 'активен'}")
+    await redis.close()
+    return is_blacklisted
+
+# Получение токена из заголовка запроса
+def get_token_from_request(request: Request):
+    auth_header = request.headers.get("authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None
+    return auth_header.split(" ")[1]

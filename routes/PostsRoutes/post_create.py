@@ -3,12 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models import User, Post
-from app.schemas import PostSchema, PostCreate
+from app.schemas import PostCreate
 from app.utils import get_current_user, create_notification
 
 router = APIRouter(tags=["Posts"])
 
-@router.post("/create", response_model=PostSchema, status_code=status.HTTP_201_CREATED, name="Создание поста")
+@router.post("/create", status_code=status.HTTP_201_CREATED, name="Создание поста")
 async def create_post(
     payload: PostCreate = Query(...), 
     current_user: User = Depends(get_current_user), 
@@ -22,4 +22,4 @@ async def create_post(
     # Отправляем уведомление автору на почту
     await create_notification(current_user.id, "Пост отправлен на модерацию", f"Ваш пост «{post.title}» ожидает одобрения.", db)
 
-    return PostSchema.model_validate(post)
+    return {"message": "Пост успешно создан и отправлен на модерацию"}

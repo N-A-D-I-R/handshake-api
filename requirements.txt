@@ -12,4 +12,5 @@ redis
 python-multipart
 pydantic[email]
 passlib[bcrypt]
+python-jose[cryptography]
 jinja2

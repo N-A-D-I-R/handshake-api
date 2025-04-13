@@ -1,32 +1,64 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models import RefreshToken, SuperUser
-from app.auth import get_jwt_data, create_access_token
+from app.models import RefreshToken
+from app.auth import get_jwt_data, create_access_token, create_refresh_token
+from app.utils import bearer_scheme
+
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Superusers"])
 
-@router.post("/refresh", status_code=status.HTTP_201_CREATED, response_model=dict, name="Обновление токена суперпользователя")
-async def refresh_superuser_token(
-    authorization: str = Header(...),
+@router.get("/refresh", status_code=status.HTTP_201_CREATED, response_model=dict, name="Обновление токена суперпользователя")
+async def refresh(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme), 
     db: AsyncSession = Depends(get_db)
 ):
-    token = authorization.replace("Bearer ", "")
-    payload = get_jwt_data(token, "refresh")
+    jwt_token = credentials.credentials
+    
+    data = get_jwt_data(jwt_token, "refresh")
 
-    token_record = await db.execute(select(RefreshToken).where(RefreshToken.token == token, RefreshToken.is_active == True))
-    refresh = token_record.scalars().first()
+    user_id = data.get("id")
 
-    if not refresh or refresh.expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=401, detail="Refresh-токен недействителен или просрочен")
+    if not user_id:
+        logger.warning("Токен не содержит ID пользователя")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Невалидный токен"
+        )
+    
+    # Проверяем, существует ли refresh токен в базе данных
+    result = await db.execute(
+        select(RefreshToken).filter(RefreshToken.token == jwt_token)
+    )
+    db_token = result.scalars().first()
 
-    result = await db.execute(select(SuperUser).where(SuperUser.id == refresh.superuser_id))
-    superuser = result.scalars().first()
+    if not db_token:
+        raise HTTPException(status_code=401, detail="Недействительный refresh токен")
+    
+    if db_token.expires_at < datetime.now(timezone.utc):
+        # Токен просрочен
+        await db.delete(db_token)
+        await db.commit()
+        raise HTTPException(status_code=401, detail="Refresh токен просрочен")
 
-    if not superuser:
-        raise HTTPException(status_code=404, detail="Суперпользователь не найден")
+    # Генерируем новые токены
+    new_access_token = create_access_token(user_id)
+    new_refresh_token = create_refresh_token(user_id)
 
-    return {"access_token": create_access_token(superuser.id)}
+    # Обновляем refresh токен в БД
+    db_token.token = new_refresh_token
+    await db.commit()
+
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token
+    }

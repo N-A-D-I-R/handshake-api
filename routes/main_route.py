@@ -9,7 +9,7 @@ from app.schemas import PostSchema
 router = APIRouter(tags=["Main"])
 
 @router.get("/", response_model=list[PostSchema], status_code=status.HTTP_200_OK, name="Главная страница")
-async def get_posts(search: str = Query(..., description="Найти пост"), db: AsyncSession = Depends(get_db)):
+async def get_posts(search: str = Query(default=None, description="Найти пост"), db: AsyncSession = Depends(get_db)):
     if search:
         result = await db.execute(text("""
             SELECT id, title, need, offer, user_id
