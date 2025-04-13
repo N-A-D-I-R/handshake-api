@@ -8,7 +8,7 @@ from app.database import get_db
 from app.models import RefreshToken
 from app.utils import get_jwt_data, invalidate_access_token, bearer_scheme
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter(tags=["Users"])
 
 @router.post("/logout", status_code=status.HTTP_200_OK, name="Выход пользователя")
 async def logout(

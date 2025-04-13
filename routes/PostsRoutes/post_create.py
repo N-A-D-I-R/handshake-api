@@ -8,7 +8,7 @@ from app.utils import get_current_user
 
 router = APIRouter(tags=["Posts"])
 
-@router.post("/posts", response_model=PostSchema, status_code=status.HTTP_201_CREATED, name="Создание поста")
+@router.post("/create", response_model=PostSchema, status_code=status.HTTP_201_CREATED, name="Создание поста")
 async def create_post(
     payload: PostCreate = Query(...), 
     current_user: User = Depends(get_current_user), 

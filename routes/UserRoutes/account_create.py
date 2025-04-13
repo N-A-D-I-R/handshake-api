@@ -5,13 +5,13 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models import User, EmailConfirmation
 from app.email import send_email
-from app.utils import generate_auth_key
+from app.utils import generate_auth_key, hash_password
 from datetime import datetime, timedelta, timezone
 from app.schemas import UserRegister
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter(tags=["Users"])
 
-@router.post("/create", response_model=dict, status_code=status.HTTP_201_CREATED, name="Создание пользователя")
+@router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED, name="Регистрация пользователя")
 async def register_user(request: Request, user: UserRegister = Query(...), db: AsyncSession = Depends(get_db)):
     user_email = user.email.strip().lower()
 
@@ -24,14 +24,14 @@ async def register_user(request: Request, user: UserRegister = Query(...), db: A
         else:
             # Повторная регистрация — обновляем данные
             existing.name = user.name
-            existing.password = user.password
+            existing.password = hash_password(user.password)
             existing.ip_address = request.client.host
             db_user = existing
     else:
         db_user = User(
             email=user_email,
             name=user.name,
-            password=user.password,
+            password=hash_password(user.password),
             ip_address=request.client.host,
             is_verified=False
         )

@@ -9,7 +9,7 @@ from app.utils import get_current_user, verify_post_owner
 
 router = APIRouter(tags=["Posts"])
 
-@router.delete("/posts/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Удаление поста")
+@router.delete("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Удаление поста")
 async def delete_post(id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post).filter(Post.id == id))
     post = result.scalars().first()

@@ -1,5 +1,7 @@
 from fastapi import FastAPI
-from routes.AuthRoutes import router as auth_router
+from routes.main_route import router as main_route
+from routes.UserRoutes import router as user_router
+from routes.SuperuserRoutes import router as superuser_router
 from routes.PostsRoutes import router as post_router
 
 import logging
@@ -52,5 +54,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Handshake", description="...", openapi_prefix="/v1", lifespan=lifespan)
 
 # Подключение роутеров
-app.include_router(auth_router)
+app.include_router(main_route)
+app.include_router(user_router)
+app.include_router(superuser_router)
 app.include_router(post_router)

@@ -16,9 +16,9 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter(tags=["Users"])
 
-@router.get("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Обновление токена")
+@router.get("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Обновление токена пользователя")
 async def refresh(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme), 
     db: AsyncSession = Depends(get_db)

@@ -7,7 +7,7 @@ from app.models import User, EmailConfirmation
 from datetime import datetime, timezone
 from app.schemas import EmailCodeConfirm
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter(tags=["Users"])
 
 @router.post("/verify", response_model=dict, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
 async def verify_user(data: EmailCodeConfirm = Query(...), db: AsyncSession = Depends(get_db)):

@@ -11,3 +11,4 @@ python-dotenv
 redis
 python-multipart
 pydantic[email]
+passlib[bcrypt]
