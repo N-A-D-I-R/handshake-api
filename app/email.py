@@ -7,10 +7,10 @@ from jinja2 import Environment, FileSystemLoader
 
 from dotenv import load_dotenv
 
-env = Environment(loader=FileSystemLoader("templates/emails"))
-
 # Загружаем переменные окружения из .env файла
 load_dotenv() 
+
+env = Environment(loader=FileSystemLoader("templates/emails"))
 
 def render_template(template_name: str, **context) -> str:
     template = env.get_template(template_name)
