@@ -25,7 +25,7 @@ async def get_posts(search: str = Query(..., description="Найти пост"),
         posts = [Post(id=row[0], title=row[1], need=row[2], offer=row[3], user_id=row[4]) for row in rows]
     
     else:
-        result = await db.execute(select(Post))
+        result = await db.execute(select(Post).where(Post.status == "approved"))
         posts = result.scalars().all()
 
     return [PostSchema.model_validate(post, from_attributes=True) for post in posts]

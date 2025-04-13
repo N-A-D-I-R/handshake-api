@@ -8,7 +8,7 @@ from app.database import get_db
 from app.models import User, RefreshToken
 from app.schemas import UserAuth, TokenResponse
 from app.auth import create_access_token, create_refresh_token
-from app.utils import verify_password
+from app.utils import verify_password, create_notification
 
 from datetime import datetime, timedelta, timezone
 
@@ -47,6 +47,9 @@ async def login(
 
     db.add(db_token)
     await db.commit()
+
+    # Отправляем уведомление пользователю
+    await create_notification(user.id, "Вход в аккаунт", f"Вы вошли в аккаунт с IP {request.client.host}", db)
 
     return {
         "access_token": create_access_token(user.id),

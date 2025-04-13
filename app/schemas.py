@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import List
+from datetime import datetime
 
 class UserRegister(BaseModel):
     email: EmailStr = Field(..., description="Укажите ваш e-mail")
@@ -43,5 +44,15 @@ class UserSchema(BaseModel):
     ip_address: str
     posts: List[PostSchema] = []
     
+    class Config:
+        from_attributes = True
+
+class NotificationSchema(BaseModel):
+    id: int
+    title: str
+    message: str
+    is_read: bool
+    created_at: datetime
+
     class Config:
         from_attributes = True

@@ -13,7 +13,7 @@ from passlib.hash import bcrypt
 
 from typing import Annotated
 
-from .models import User, Post
+from .models import User, SuperUser, Post
 from .auth import get_jwt_data
 from .database import get_db
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 bearer_scheme = HTTPBearer()
 
-# Проверка авторизации
+# Проверка авторизации пользователя
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)]
@@ -49,6 +49,30 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="Токен недействителен")
 
     return user
+
+# Проверка авторизации суперпользователя
+async def get_current_superuser(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
+    db: Annotated[AsyncSession, Depends(get_db)]
+) -> SuperUser:
+    jwt_token = credentials.credentials
+
+    # Тут обязательно проверяем access токен
+    data = get_jwt_data(jwt_token, "access")
+
+    superuser_id = data.get("id")
+    if not superuser_id:
+        logger.warning("JWT не содержит ID суперпользователя")
+        raise HTTPException(status_code=401, detail="Недействительный токен")
+
+    result = await db.execute(select(SuperUser).where(SuperUser.id == superuser_id))
+    superuser = result.scalars().first()
+
+    if not superuser:
+        logger.warning(f"Суперпользователь с ID {superuser_id} не найден")
+        raise HTTPException(status_code=401, detail="Суперпользователь не найден")
+
+    return superuser
 
 # Хеширование пароля перед сохранением в БД
 def hash_password(password: str) -> str:
@@ -83,3 +107,9 @@ async def is_token_blacklisted(jwt_token: str) -> bool:
     is_blacklisted = await redis.exists(jwt_token)
     await redis.close()
     return is_blacklisted
+
+async def create_notification(user_id: int, title: str, message: str, db: AsyncSession):
+    from app.models import Notification
+    notification = Notification(user_id=user_id, title=title, message=message)
+    db.add(notification)
+    await db.commit()

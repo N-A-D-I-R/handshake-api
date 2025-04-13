@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from routes.main_route import router as main_route
 from routes.UserRoutes import router as user_router
-from routes.SuperuserRoutes import router as superuser_router
 from routes.PostsRoutes import router as post_router
+from routes.SuperuserRoutes import router as superuser_router
+from routes.ModerationRoutes import router as moderation_router
 
 import logging
 import asyncio
@@ -56,5 +57,6 @@ app = FastAPI(title="Handshake", description="...", openapi_prefix="/v1", lifesp
 # Подключение роутеров
 app.include_router(main_route)
 app.include_router(user_router)
-app.include_router(superuser_router)
 app.include_router(post_router)
+app.include_router(superuser_router)
+app.include_router(moderation_router)

@@ -3,27 +3,40 @@ import os
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from jinja2 import Environment, FileSystemLoader
 
 from dotenv import load_dotenv
 
-load_dotenv()
+env = Environment(loader=FileSystemLoader("templates/emails"))
 
-def send_email(to: str, subject: str, body: str) -> None:
+# Загружаем переменные окружения из .env файла
+load_dotenv() 
 
-    # Выгружаем SMTP-данные из .env файла
+def render_template(template_name: str, **context) -> str:
+    template = env.get_template(template_name)
+    return template.render(**context)
+
+def send_email(to: str, subject: str, body: str, html: bool = False) -> None:
+
+    # Выгружаем SMTP-данные
     smtp_server = os.getenv("SMTP_SERVER")
     smtp_port = os.getenv("SMTP_PORT")
     smtp_user = os.getenv("SMTP_USER")
     smtp_password = os.getenv("SMTP_PASSWORD")
 
     # Настройка письма
-    msg = MIMEMultipart()
+    msg = MIMEMultipart("alternative")  # поддерживает и plain, и html
     msg['From'] = smtp_user
     msg['To'] = to
     msg['Subject'] = subject
 
-    # Добавление текста сообщения
-    msg.attach(MIMEText(body, 'plain'))
+    # Добавляем текст письма
+    if html:
+        html_body = MIMEText(body, "html")
+        msg.attach(html_body)
+    else:
+        plain_body = MIMEText(body, "plain")
+        msg.attach(plain_body)
 
     try:
         # Подключаемся к SMTP-серверу

@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models import User, EmailConfirmation
-from app.email import send_email
+from app.email import send_email, render_template
 from app.utils import generate_auth_key, hash_password
 from datetime import datetime, timedelta, timezone
 from app.schemas import UserRegister
@@ -58,10 +58,14 @@ async def register_user(request: Request, user: UserRegister = Query(...), db: A
 
     await db.commit()
 
+    html_body = render_template("confirm_code.html", code=code)
+
     send_email(
         to=user_email,
         subject="Код подтверждения",
-        body=f"Ваш код подтверждения: {code}"
+        body=html_body,
+        html=True
     )
+
 
     return {"message": "Код подтверждения отправлен на почту"}

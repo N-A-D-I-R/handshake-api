@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models import SuperUser
+from app.models import SuperUser, RefreshToken
 from app.schemas import SuperUserAuth, TokenResponse
 from app.auth import create_access_token, create_refresh_token
 from app.utils import verify_password
@@ -19,16 +19,27 @@ async def superuser_login(
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(SuperUser).where(SuperUser.username == credentials.username))
-    user = result.scalars().first()
+    superuser = result.scalars().first()
 
-    if not user or not verify_password(credentials.password, user.password):
+    if not superuser or not verify_password(credentials.password, superuser.password):
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
 
-    # токен только с ID суперпользователя
-    refresh_token = create_refresh_token(user.id)
+    access_token = create_access_token(superuser.id)
+    refresh_token = create_refresh_token(superuser.id)
     expires_at = datetime.now(timezone.utc) + timedelta(days=7)
 
+    db_token = RefreshToken(
+        token=refresh_token,
+        superuser_id=superuser.id,
+        user_agent=request.headers.get("user-agent"),
+        ip_address=request.client.host,
+        expires_at=expires_at,
+    )
+
+    db.add(db_token)
+    await db.commit()
+
     return {
-        "access_token": create_access_token(user.id),
+        "access_token": access_token,
         "refresh_token": refresh_token
     }

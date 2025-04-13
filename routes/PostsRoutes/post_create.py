@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models import User, Post
 from app.schemas import PostSchema, PostCreate
-from app.utils import get_current_user
+from app.utils import get_current_user, create_notification
 
 router = APIRouter(tags=["Posts"])
 
@@ -18,4 +18,8 @@ async def create_post(
     db.add(post)
     await db.commit()
     await db.refresh(post)
+
+    # Отправляем уведомление автору на почту
+    await create_notification(current_user.id, "Пост отправлен на модерацию", f"Ваш пост «{post.title}» ожидает одобрения.", db)
+
     return PostSchema.model_validate(post)

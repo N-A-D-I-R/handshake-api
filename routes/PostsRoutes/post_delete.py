@@ -5,7 +5,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models import User, Post
 from app.schemas import PostSchema
-from app.utils import get_current_user, verify_post_owner
+from app.utils import get_current_user, verify_post_owner, create_notification
 
 router = APIRouter(tags=["Posts"])
 
@@ -21,5 +21,8 @@ async def delete_post(id: int, current_user: User = Depends(get_current_user), d
 
     await db.delete(post)
     await db.commit()
+
+    # Отправляем уведомление автору на почту
+    await create_notification(current_user.id, "Пост удален", f"Ваш пост «{post.title}» был удален.", db)
 
     return PostSchema.model_validate(post)

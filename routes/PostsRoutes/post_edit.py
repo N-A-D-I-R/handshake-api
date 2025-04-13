@@ -5,7 +5,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models import User, Post
 from app.schemas import PostSchema, PostCreate
-from app.utils import get_current_user, verify_post_owner
+from app.utils import get_current_user, verify_post_owner, create_notification
 
 router = APIRouter(tags=["Posts"])
 
@@ -25,5 +25,8 @@ async def edit_post(id: int, payload: PostCreate = Query(...), current_user: Use
 
     await db.commit()
     await db.refresh(post)
+
+    # Отправляем уведомление автору на почту
+    await create_notification(current_user.id, "Пост отредактирован", f"Ваш пост «{post.title}» был обновлён и отправлен на повторную модерацию.", db)
 
     return PostSchema.model_validate(post)

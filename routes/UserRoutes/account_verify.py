@@ -4,8 +4,11 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models import User, EmailConfirmation
-from datetime import datetime, timezone
+from app.utils import create_notification
+from app.email import send_email, render_template
 from app.schemas import EmailCodeConfirm
+
+from datetime import datetime, timezone
 
 router = APIRouter(tags=["Users"])
 
@@ -39,5 +42,17 @@ async def verify_user(data: EmailCodeConfirm = Query(...), db: AsyncSession = De
 
     await db.delete(confirmation)
     await db.commit()
+
+    # Отправляем уведомление на почту
+    html = render_template("account_verified.html", name=user.name)
+    send_email(
+        to=user.email,
+        subject="Ваш аккаунт подтверждён!",
+        body=html,
+        html=True
+    )
+
+    # Создаём уведомление в системе
+    await create_notification(user.id, "Аккаунт подтверждён", "Ваш аккаунт успешно подтверждён!", db)
 
     return {"message": "Пользователь подтверждён и зарегистрирован"}

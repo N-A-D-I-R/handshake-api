@@ -23,6 +23,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     posts = relationship("Post", back_populates="owner", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 
     @validates("email")
     def validate_email(self, key, value):
@@ -73,6 +74,7 @@ class RefreshToken(Base):
     id = Column(Integer, primary_key=True, index=True)
     token = Column(String, unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    superuser_id = Column(Integer, ForeignKey("superusers.id", ondelete="CASCADE"), nullable=True)
     user_agent = Column(Text)
     ip_address = Column(String(45))  # IPv4 и IPv6
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -85,3 +87,15 @@ class EmailConfirmation(Base):
     email = Column(String, primary_key=True, index=True)
     code = Column(String, nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    title = Column(String(255), nullable=False)
+    message = Column(Text, nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="notifications")
