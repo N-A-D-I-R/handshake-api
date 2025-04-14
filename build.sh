@@ -25,3 +25,5 @@ sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 
 echo "PostgreSQL установлен, настроен, таблица создана и база данных запущена."
+
+echo $(python3 --version)
