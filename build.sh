@@ -9,13 +9,8 @@ if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
   exit 1
 fi
 
-# Установим DEBIAN_FRONTEND для автоматического ответа на вопросы конфигурации
-export DEBIAN_FRONTEND=noninteractive
-export TERM=dumb
-
-# Обновим список пакетов и установим PostgreSQL
-apt update
-apt install -y postgresql postgresql-contrib tzdata
+# Установим PostgreSQL
+DEBIAN_FRONTEND=noninteractive apt install -y postgresql postgresql-contrib tzdata
 
 # Настроим tzdata с помощью debconf
 cat <<EOF | debconf-set-selections
