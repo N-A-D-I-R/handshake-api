@@ -9,6 +9,12 @@ if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
   exit 1
 fi
 
+# Установим переменную TERM для избежания ошибок debconf
+export TERM=dumb
+
+# Временно удалим tzdata
+apt-get remove -y tzdata
+
 # Установим PostgreSQL
 DEBIAN_FRONTEND=noninteractive apt install -y postgresql postgresql-contrib tzdata
 
