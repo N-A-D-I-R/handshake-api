@@ -9,11 +9,9 @@ if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
   exit 1
 fi
 
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-    && sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends postgresql-14 postgresql-client-14 postgresql-contrib-14 \
-    && rm -rf /var/lib/apt/lists/*
+# Обновим список пакетов и установим PostgreSQL
+apt update
+apt install -y postgresql postgresql-contrib
 
 # Настроим tzdata с помощью debconf
 cat <<EOF | debconf-set-selections
