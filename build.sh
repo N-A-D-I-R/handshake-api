@@ -22,5 +22,3 @@ postgrespsql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 service postgresql start
 
 echo "PostgreSQL установлен, настроен, таблица создана и база данных запущена."
-
-pip3 install -r requirements.txt
