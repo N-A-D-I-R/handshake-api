@@ -13,12 +13,6 @@ fi
 apt update
 apt install -y postgresql postgresql-contrib
 
-# Настроим tzdata с помощью debconf
-cat <<EOF | debconf-set-selections
-tzdata tzdata/Areas select Etc
-tzdata tzdata/Zones/Etc select UTC
-EOF
-
 # Настроим PostgreSQL
 -u postgres psql -c "CREATE DATABASE $DB_NAME;"
 -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
