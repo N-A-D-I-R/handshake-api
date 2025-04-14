@@ -13,12 +13,12 @@ fi
 apt update
 apt install -y postgresql postgresql-contrib
 
+# Запустим PostgreSQL
+service postgresql start
+
 # Настроим PostgreSQL
 psql -U postgres -c "CREATE DATABASE $DB_NAME;"
 psql -U postgres -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
 psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
-
-# Запустим PostgreSQL
-service postgresql start
 
 echo "PostgreSQL установлен, настроен, таблица создана и база данных запущена."
