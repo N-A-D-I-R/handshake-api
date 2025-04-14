@@ -12,6 +12,10 @@ fi
 # Установим DEBIAN_FRONTEND для автоматического ответа на вопросы конфигурации
 export DEBIAN_FRONTEND=noninteractive
 
+# Обновим список пакетов и установим PostgreSQL
+apt update
+apt install -y postgresql postgresql-contrib tzdata
+
 # Настроим tzdata с помощью debconf
 cat <<EOF | debconf-set-selections
 tzdata tzdata/Areas select Etc
