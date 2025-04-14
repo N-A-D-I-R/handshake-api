@@ -24,4 +24,4 @@ EXPOSE 5432
 EXPOSE 6379
 
 # Set the default command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/entrypoint.sh"]
