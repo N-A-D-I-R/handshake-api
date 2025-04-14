@@ -20,6 +20,8 @@ RUN pip install -U pip && pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 8000
+EXPOSE 5432
+EXPOSE 6379
 
 # Set the default command to run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
