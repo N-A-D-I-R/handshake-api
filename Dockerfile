@@ -23,6 +23,6 @@ EXPOSE 8000
 EXPOSE 5432
 EXPOSE 6379
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
