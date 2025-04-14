@@ -22,4 +22,4 @@ COPY . .
 EXPOSE 8000
 
 # Set the default command to run the application
-CMD ["python3", "-m", "uvicorn", "main:app", "--port", "0.0.0.0"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
