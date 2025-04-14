@@ -13,6 +13,9 @@ fi
 apt update
 apt install -y postgresql postgresql-contrib sudo redis-server
 
+# Запускаем PostgreSQL
+service postgresql start
+
 # Настроим PostgreSQL
 sudo -u postgres psql -c "CREATE DATABASE $DB_NAME;"
 sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
