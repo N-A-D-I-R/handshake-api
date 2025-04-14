@@ -1,5 +1,5 @@
 # Use the official Python 3.12 image based on Debian Bookworm
-FROM python:3.12-bookworm
+FROM python:3.11.2
 
 # Set the working directory
 WORKDIR /app
