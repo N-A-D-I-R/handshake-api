@@ -10,22 +10,15 @@ if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
 fi
 
 # Обновим список пакетов и установим PostgreSQL
-apt update
-apt install -y postgresql postgresql-contrib
+sudo apt update
+sudo apt install -y postgresql postgresql-contrib
 
 # Запустим PostgreSQL
 service postgresql start
 
-# Connect to PostgreSQL as the postgres user with password authentication
-psql -U postgres -W <<EOF
-# Create the database
-CREATE DATABASE $DB_NAME;
-
-# Create the user
-CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
-
-# Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
-EOF
+# Настроим PostgreSQL
+sudo -u postgres psql -c "CREATE DATABASE $DB_NAME;"
+sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 
 echo "PostgreSQL установлен, настроен, таблица создана и база данных запущена."
