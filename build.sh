@@ -14,9 +14,9 @@ apt update
 apt install -y postgresql postgresql-contrib
 
 # Настроим PostgreSQL
-postgrespsql -c "CREATE DATABASE $DB_NAME;"
-postgrespsql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
-postgrespsql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+postgres psql -c "CREATE DATABASE $DB_NAME;"
+postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
+postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 
 # Запустим PostgreSQL
 service postgresql start
