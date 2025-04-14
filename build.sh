@@ -10,8 +10,8 @@ if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
 fi
 
 # Обновим список пакетов и установим PostgreSQL
-sudo apt update
-sudo apt install -y postgresql postgresql-contrib
+apt update
+apt install -y postgresql postgresql-contrib sudo
 
 # Запустим PostgreSQL
 service postgresql start
