@@ -3,7 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from .models import Base
-from ..settings import POSTGRESQL_DATABASE_URL
+from .settings import POSTGRESQL_DATABASE_URL
 
 # Создание асинхронного движка PostgreSQL
 engine = create_async_engine(POSTGRESQL_DATABASE_URL, echo=True)

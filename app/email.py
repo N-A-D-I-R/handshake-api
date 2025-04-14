@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment, FileSystemLoader
 
-from ..settings import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+from .settings import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
 
 env = Environment(loader=FileSystemLoader("templates/emails"))
 

@@ -11,10 +11,13 @@ fi
 
 # Обновим список пакетов и установим PostgreSQL
 apt update
-apt install -y postgresql postgresql-contrib sudo
+apt install -y postgresql postgresql-contrib sudo redis-server
 
 # Запустим PostgreSQL
 service postgresql start
+
+# Запустим Redis
+service redis start
 
 # Настроим PostgreSQL
 sudo -u postgres psql -c "CREATE DATABASE $DB_NAME;"
