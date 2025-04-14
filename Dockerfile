@@ -6,6 +6,7 @@ WORKDIR /app
 # Update the package list and upgrade installed packages
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
+COPY  .env .
 COPY  setup-postgres.sh .
 RUN sh ./setup-postgres.sh
 
