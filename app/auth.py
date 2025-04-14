@@ -6,14 +6,7 @@ import redis.asyncio as redis
 from fastapi import HTTPException, Request, status
 from datetime import datetime, timedelta, timezone
 
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-JWT_SECRET = os.getenv("JWT_SECRET")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
-REDIS_URL = os.getenv("REDIS_URL")
+from ..settings import JWT_SECRET, JWT_ALGORITHM, REDIS_URL
 
 logger = logging.getLogger(__name__)
 

@@ -13,15 +13,13 @@ from datetime import datetime
 
 from sqlalchemy import delete
 
-from .models import RefreshToken
-from .database import get_db
+from app.models import RefreshToken
+from app.database import get_db, init_db
 
 from contextlib import asynccontextmanager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-from .database import init_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

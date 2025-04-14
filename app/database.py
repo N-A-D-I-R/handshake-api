@@ -1,16 +1,9 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import declarative_base
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from .models import Base
-
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-POSTGRESQL_DATABASE_URL = os.getenv("POSTGRESQL_DATABASE_URL")
+from ..settings import POSTGRESQL_DATABASE_URL
 
 # Создание асинхронного движка PostgreSQL
 engine = create_async_engine(POSTGRESQL_DATABASE_URL, echo=True)

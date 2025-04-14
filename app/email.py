@@ -1,14 +1,10 @@
 import smtplib
-import os
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment, FileSystemLoader
 
-from dotenv import load_dotenv
-
-# Загружаем переменные окружения из .env файла
-load_dotenv(override=True) 
+from ..settings import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
 
 env = Environment(loader=FileSystemLoader("templates/emails"))
 
@@ -18,15 +14,9 @@ def render_template(template_name: str, **context) -> str:
 
 def send_email(to: str, subject: str, body: str, html: bool = False) -> None:
 
-    # Выгружаем SMTP-данные
-    smtp_server = os.getenv("SMTP_SERVER")
-    smtp_port = os.getenv("SMTP_PORT")
-    smtp_user = os.getenv("SMTP_USER")
-    smtp_password = os.getenv("SMTP_PASSWORD")
-
     # Настройка письма
     msg = MIMEMultipart("alternative")  # поддерживает и plain, и html
-    msg['From'] = smtp_user
+    msg['From'] = SMTP_USER
     msg['To'] = to
     msg['Subject'] = subject
 
@@ -40,9 +30,9 @@ def send_email(to: str, subject: str, body: str, html: bool = False) -> None:
 
     try:
         # Подключаемся к SMTP-серверу
-        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:  # Используем SSL для порт 465
-            server.login(smtp_user, smtp_password)  # Логинимся на сервер
-            server.sendmail(smtp_user, to, msg.as_string())  # Отправляем письмо
+        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:  # Используем SSL для порт 465
+            server.login(SMTP_USER, SMTP_PASSWORD)  # Логинимся на сервер
+            server.sendmail(SMTP_USER, to, msg.as_string())  # Отправляем письмо
 
         print("Email sent successfully")
     except Exception as e:
