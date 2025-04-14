@@ -12,9 +12,11 @@ fi
 # Установим DEBIAN_FRONTEND для автоматического ответа на вопросы конфигурации
 export DEBIAN_FRONTEND=noninteractive
 
-# Настроим tzdata
-echo "Etc/UTC" | tee /etc/timezone
-dpkg-reconfigure -f noninteractive tzdata
+# Настроим tzdata с помощью debconf
+cat <<EOF | debconf-set-selections
+tzdata tzdata/Areas select Etc
+tzdata tzdata/Zones/Etc select UTC
+EOF
 
 # Настроим PostgreSQL
 -u postgres psql -c "CREATE DATABASE $DB_NAME;"
