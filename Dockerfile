@@ -23,5 +23,6 @@ EXPOSE 8000
 EXPOSE 5432
 EXPOSE 6379
 
-# Set the default command to run the application
+RUN chmod +x /entrypoint.sh
+
 ENTRYPOINT ["./entrypoint.sh"]
