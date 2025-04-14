@@ -9,16 +9,22 @@ if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
   exit 1
 fi
 
-# Установим PostgreSQL
-apt install -y postgresql postgresql-contrib
+# Установим DEBIAN_FRONTEND для автоматического ответа на вопросы конфигурации
+export DEBIAN_FRONTEND=noninteractive
+
+# Обновим список пакетов и установим PostgreSQL
+apt update
+apt install -y postgresql postgresql-contrib tzdata
 
 # Настроим PostgreSQL
 -u postgres psql -c "CREATE DATABASE $DB_NAME;"
 -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
 -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 
+
 # Запустим PostgreSQL
 systemctl start postgresql
+
 
 echo "PostgreSQL установлен, настроен, таблица создана и база данных запущена."
 
