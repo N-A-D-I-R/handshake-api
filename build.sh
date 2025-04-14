@@ -11,9 +11,11 @@ fi
 
 # Установим DEBIAN_FRONTEND для автоматического ответа на вопросы конфигурации
 export DEBIAN_FRONTEND=noninteractive
+export TERM=dumb
 
 # Обновим список пакетов и установим PostgreSQL
 apt update
+apt install -y postgresql postgresql-contrib tzdata
 
 # Настроим tzdata с помощью debconf
 cat <<EOF | debconf-set-selections
@@ -34,5 +36,3 @@ systemctl start postgresql
 echo "PostgreSQL установлен, настроен, таблица создана и база данных запущена."
 
 pip3 install -r requirements.txt
-
-apt install -y postgresql postgresql-contrib tzdata
