@@ -16,6 +16,7 @@ from .models import User, SuperUser, Post
 from .auth import get_jwt_data, is_token_blacklisted
 from .database import get_db
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 bearer_scheme = HTTPBearer()
@@ -31,14 +32,14 @@ async def get_current_user(
     user_id = data.get("id")
 
     if not user_id:
-        logger.warning("JWT не содержит ID пользователя")
+        logger.debug("JWT не содержит ID пользователя")
         raise HTTPException(status_code=401, detail="Недействительный токен")
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalars().first()
 
     if not user:
-        logger.warning(f"Пользователь ID {user_id} не найден")
+        logger.debug(f"Пользователь ID {user_id} не найден")
         raise HTTPException(status_code=401, detail="Пользователь не найден")
 
     if not user.is_verified:
@@ -60,14 +61,14 @@ async def get_current_superuser(
     superuser_id = data.get("id")
 
     if not superuser_id:
-        logger.warning("JWT не содержит ID суперпользователя")
+        logger.debug("JWT не содержит ID суперпользователя")
         raise HTTPException(status_code=401, detail="Недействительный токен")
 
     result = await db.execute(select(SuperUser).where(SuperUser.id == superuser_id))
     superuser = result.scalars().first()
 
     if not superuser:
-        logger.warning(f"Суперпользователь с ID {superuser_id} не найден")
+        logger.debug(f"Суперпользователь с ID {superuser_id} не найден")
         raise HTTPException(status_code=401, detail="Суперпользователь не найден")
     
     if await is_token_blacklisted(jwt_token):
