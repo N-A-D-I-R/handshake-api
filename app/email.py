@@ -34,14 +34,12 @@ def send_email(to: str, subject: str, body: str, html: bool = False) -> None:
         msg.attach(plain_body)
 
     try:
-        # Подключение к SMTP-серверу
-        logger.info("Подключаемся к SMTP-серверу")
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             logger.info("Логинимся на сервер")
+            server.starttls()  # Инициализация шифрования
             server.login(SMTP_USER, SMTP_PASSWORD)
             logger.info("Отправляем письмо")
             server.sendmail(SMTP_USER, to, msg.as_string())
-
-        logger.info("Письмо успешно отправлено на почту пользователя")
+            logger.info("Письмо отправлено успешно!")
     except Exception as e:
-        logger.info(f"Ошибка при отправке письма: {e}")
+        logger.error(f"Ошибка при отправке письма: {e}")
