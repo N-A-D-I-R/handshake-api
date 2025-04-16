@@ -36,9 +36,11 @@ def send_email(to: str, subject: str, body: str, html: bool = False) -> None:
     try:
         # Подключение к SMTP-серверу
         logger.info("Подключаемся к SMTP-серверу")
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:  # Используем SSL для порт 465
-            server.login(SMTP_USER, SMTP_PASSWORD)  # Логинимся на сервер
-            server.sendmail(SMTP_USER, to, msg.as_string())  # Отправляем письмо
+        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+            logger.info("Логинимся на сервер")
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            logger.info("Отправляем письмо")
+            server.sendmail(SMTP_USER, to, msg.as_string())
 
         logger.info("Письмо успешно отправлено на почту пользователя")
     except Exception as e:
