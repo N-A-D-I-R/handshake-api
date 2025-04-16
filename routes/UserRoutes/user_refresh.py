@@ -14,6 +14,7 @@ from app.auth import create_access_token, create_refresh_token
 
 from datetime import datetime, timezone
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Users"])
@@ -30,7 +31,7 @@ async def refresh(
     user_id = data.get("id")
 
     if not user_id:
-        logger.warning("Токен не содержит ID пользователя")
+        logger.info("Токен не содержит ID пользователя")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Невалидный токен"
@@ -43,6 +44,7 @@ async def refresh(
     db_token = result.scalars().first()
 
     if not db_token:
+        logger.info("Недействительный refresh токен")
         raise HTTPException(status_code=401, detail="Недействительный refresh токен")
     
     if db_token.expires_at < datetime.now(timezone.utc):

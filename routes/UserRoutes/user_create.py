@@ -11,7 +11,7 @@ from app.utils import generate_auth_key, hash_password
 from datetime import datetime, timedelta, timezone
 from app.schemas import UserRegister
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Users"])
@@ -25,10 +25,10 @@ async def register_user(request: Request, user: UserRegister = Query(...), db: A
 
     if existing:
         if existing.is_verified:
-            logger.debug("Email уже зарегистрирован")
+            logger.info("Email уже зарегистрирован")
             raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
         else:
-            logger.debug("Повторная регистрация")
+            logger.info("Повторная регистрация")
 
             # Повторная регистрация — обновляем данные
             existing.name = user.name
@@ -46,12 +46,12 @@ async def register_user(request: Request, user: UserRegister = Query(...), db: A
         db.add(db_user)
 
     # Генерация кода подтверждения
-    logger.debug("Генерируем код подтверждения")
+    logger.info("Генерируем код подтверждения")
     code = generate_auth_key()
-    logger.debug("Код сгенерирован успешно")
+    logger.info("Код сгенерирован успешно")
 
     # Ищем или создаём запись подтверждения
-    logger.debug("Ищем или создаём запись подтверждения")
+    logger.info("Ищем или создаём запись подтверждения")
     conf_stmt = select(EmailConfirmation).filter(EmailConfirmation.email == user_email)
     result = await db.execute(conf_stmt)
     confirmation = result.scalars().first()
@@ -68,19 +68,18 @@ async def register_user(request: Request, user: UserRegister = Query(...), db: A
         db.add(confirmation)
 
     await db.commit()
-    logger.debug("Успешно")
+    logger.info("Успешно")
 
-    logger.debug("Создаем шаблон для сообщения")
+    logger.info("Создаем шаблон для сообщения")
     html_body = render_template("confirm_code.html", code=code)
-    logger.debug("Шаблон успешно создан")
+    logger.info("Шаблон успешно создан")
 
-    logger.debug("Отправляем сообщение")
+    logger.info("Отправляем сообщение")
     send_email(
         to=user_email,
         subject="Код подтверждения",
         body=html_body,
         html=True
     )
-    logger.debug("Сообщение отправлено")
 
     return {"message": "Код подтверждения отправлен на почту"}

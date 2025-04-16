@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from .settings import JWT_SECRET, JWT_ALGORITHM, REDIS_URL
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Функции создания токенов
@@ -33,20 +33,20 @@ def get_jwt_data(jwt_token: str, token_type: str):
     try:
         data = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except jwt.ExpiredSignatureError:
-        logger.debug("Токен истек")
+        logger.info("Токен истек")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Срок действия токена истек"
         )
     except jwt.DecodeError:
-        logger.debug("Некорректный токен")
+        logger.info("Некорректный токен")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Невалидный токен"
         )
 
     if data.get("type") != token_type:
-        logger.debug("Попытка использовать токен неверного типа")
+        logger.info("Попытка использовать токен неверного типа")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный тип токена"
@@ -67,7 +67,7 @@ async def invalidate_access_token(jwt_token: str, ttl: int = 3600):
 async def is_token_blacklisted(jwt_token: str) -> bool:
     redis = await get_redis_connection()
     is_blacklisted = await redis.exists(jwt_token)
-    logger.debug(f"[Redis] Проверка токена {jwt_token} → {'в blacklist' if is_blacklisted else 'активен'}")
+    logger.info(f"[Redis] Проверка токена {jwt_token} → {'в blacklist' if is_blacklisted else 'активен'}")
     await redis.close()
     return is_blacklisted
 

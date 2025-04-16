@@ -13,7 +13,7 @@ from app.utils import bearer_scheme
 
 from datetime import datetime, timezone
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Superusers"])
@@ -30,7 +30,7 @@ async def refresh(
     user_id = data.get("id")
 
     if not user_id:
-        logger.debug("Токен не содержит ID пользователя")
+        logger.info("Токен не содержит ID пользователя")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Невалидный токен"
@@ -43,7 +43,7 @@ async def refresh(
     db_token = result.scalars().first()
 
     if not db_token:
-        logger.debug("Недействительный refresh токен")
+        logger.info("Недействительный refresh токен")
         raise HTTPException(status_code=401, detail="Недействительный refresh токен")
     
     if db_token.expires_at < datetime.now(timezone.utc):
@@ -51,7 +51,7 @@ async def refresh(
         await db.delete(db_token)
         await db.commit()
 
-        logger.debug("Refresh токен просрочен")
+        logger.info("Refresh токен просрочен")
         raise HTTPException(status_code=401, detail="Refresh токен просрочен")
 
     # Генерируем новые токены
