@@ -41,5 +41,15 @@ def send_email(to: str, subject: str, body: str, html: bool = False) -> None:
             logger.info("Отправляем письмо")
             server.sendmail(SMTP_USER, to, msg.as_string())
             logger.info("Письмо отправлено успешно!")
+    except smtplib.SMTPConnectError as e:
+        logger.error(f"Ошибка подключения к SMTP-серверу: {e}")
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error(f"Ошибка аутентификации на SMTP-сервере: {e}")
+    except smtplib.SMTPRecipientsRefused as e:
+        logger.error(f"Получатель отказал в получении письма: {e}")
+    except smtplib.SMTPSenderRefused as e:
+        logger.error(f"Отправитель отказал в отправке письма: {e}")
+    except smtplib.SMTPDataError as e:
+        logger.error(f"Ошибка данных SMTP: {e}")
     except Exception as e:
-        logger.error(f"Ошибка при отправке письма: {e}")
+        logger.error(f"Неизвестная ошибка при отправке письма: {e}", exc_info=True)
