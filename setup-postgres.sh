@@ -21,7 +21,7 @@ if ! apt install -y postgresql postgresql-contrib redis-server; then
 fi
 
 # Проверка установки Redis
-if ! command -v redis-server &> /dev/null; then
+if ! command -v redis-server; then
     echo "Ошибка: Redis не установлен."
     exit 1
 fi
