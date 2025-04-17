@@ -11,7 +11,7 @@ fi
 
 # Обновим список пакетов и установим PostgreSQL и Redis
 apt update
-apt install -y postgresql postgresql-contrib sudo redis-server
+apt install -y postgresql postgresql-contrib redis-server
 
 # Проверка установки Redis
 if ! command -v redis-server &> /dev/null; then
