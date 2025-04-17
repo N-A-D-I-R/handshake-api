@@ -2,22 +2,24 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import List
 from datetime import datetime
 
+from pydantic import BaseModel, EmailStr, Field
+
 class UserRegister(BaseModel):
-    email: EmailStr = Field(..., description="Укажите ваш e-mail")
-    name: str = Field(..., min_length=3, max_length=50, description="Ваше имя")
-    password: str = Field(..., min_length=8, max_length=50, description="Придумайте пароль")
+    email: EmailStr = Field(..., description="Укажите ваш e-mail", example="")
+    name: str = Field(..., min_length=3, max_length=50, description="Ваше имя", example="")
+    password: str = Field(..., min_length=8, max_length=50, description="Придумайте пароль", example="")
 
 class EmailCodeConfirm(BaseModel):
     email: EmailStr
-    code: str = Field(..., min_length=6, max_length=6, description="Введите код подтверждения")
+    code: str = Field(..., min_length=6, max_length=6, description="Введите код подтверждения", example="")
 
 class UserAuth(BaseModel):
-    email: EmailStr = Field(..., description="Введите e-mail")
-    password: str = Field(..., min_length=8, max_length=50, description="Введите пароль")
+    email: EmailStr = Field(..., description="Введите e-mail", example="")
+    password: str = Field(..., min_length=8, max_length=50, description="Введите пароль", example="")
 
 class SuperUserAuth(BaseModel):
-    username: str = Field(..., description="Имя суперпользователя")
-    password: str = Field(..., min_length=8, max_length=50, description="Пароль суперпользователя")
+    username: str = Field(..., description="Имя суперпользователя", example="")
+    password: str = Field(..., min_length=8, max_length=50, description="Пароль суперпользователя", example="")
 
 class TokenResponse(BaseModel):
     access_token: str

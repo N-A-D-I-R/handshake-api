@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Form, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Users"])
 
 @router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED, name="Регистрация пользователя")
-async def register_user(request: Request, user: UserRegister = Query(...), db: AsyncSession = Depends(get_db)):
+async def register_user(request: Request, user: UserRegister = Form(...), db: AsyncSession = Depends(get_db)):
     user_email = user.email.strip().lower()
 
     existing_user = await db.execute(select(User).filter(User.email == user_email))

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 router = APIRouter(tags=["Users"])
 
 @router.post("/verify", response_model=dict, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
-async def verify_user(data: EmailCodeConfirm = Query(...), db: AsyncSession = Depends(get_db)):
+async def verify_user(data: EmailCodeConfirm = Form(...), db: AsyncSession = Depends(get_db)):
     email = data.email.strip().lower()  # Нормализуем email
 
     # Получаем подтверждение

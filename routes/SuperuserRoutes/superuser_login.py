@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Body, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Form, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -15,7 +15,7 @@ router = APIRouter(tags=["Superusers"])
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Вход суперпользователя")
 async def superuser_login(
     request: Request,
-    credentials: SuperUserAuth = Body(...),
+    credentials: SuperUserAuth = Form(...),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(SuperUser).where(SuperUser.username == credentials.username))

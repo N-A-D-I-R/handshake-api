@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Body, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Form, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -20,7 +20,7 @@ router = APIRouter(tags=["Users"])
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Вход пользователя")
 async def login(
     request: Request,
-    user_data: UserAuth = Body(...),
+    user_data: UserAuth = Form(...),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(User).where(User.email == user_data.email))

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -10,7 +10,7 @@ from app.utils import get_current_user, verify_post_owner, create_notification
 router = APIRouter(tags=["Posts"])
 
 @router.put("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Редактирование поста")
-async def edit_post(id: int, payload: PostCreate = Query(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def edit_post(id: int, payload: PostCreate = Form(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post).filter(Post.id == id))
     post = result.scalars().first()
 
