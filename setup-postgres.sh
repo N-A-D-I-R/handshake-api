@@ -11,7 +11,7 @@ fi
 
 # Обновим список пакетов
 echo "Обновляем список пакетов..."
-apt update
+apt update || { echo "Ошибка: Не удалось обновить список пакетов."; exit 1; }
 
 # Установим PostgreSQL и Redis
 echo "Устанавливаем PostgreSQL и Redis..."
@@ -55,6 +55,3 @@ fi
 if ! sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"; then
     echo "Ошибка: Не удалось предоставить привилегии пользователю $DB_USER."
     exit 1
-fi
-
-echo "PostgreSQL и Redis установлены, настроены, таблица создана и база данных запущена."

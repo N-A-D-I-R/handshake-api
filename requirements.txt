@@ -9,6 +9,7 @@ alembic
 psycopg
 python-dotenv
 redis
+redis-server
 python-multipart
 pydantic[email]
 passlib[bcrypt]
