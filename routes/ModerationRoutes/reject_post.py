@@ -27,7 +27,7 @@ async def reject_post(post_id: int, db: AsyncSession = Depends(get_db), superuse
     if author and author.email:
         from app.email import send_email, render_template
         html_body = render_template("post_rejected.html", title=post.title)
-        send_email(
+        await send_email(
             to=author.email,
             subject="Ваш пост отклонён",
             body=html_body,

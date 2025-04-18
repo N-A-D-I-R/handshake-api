@@ -56,7 +56,7 @@ async def login(
 
     html_body = render_template("login_alert.html", datetime=dt, ip=ip, user_agent=ua)
 
-    send_email(
+    await send_email(
         to=user.email,
         subject="Вход в аккаунт",
         body=html_body,

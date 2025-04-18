@@ -75,7 +75,7 @@ async def register_user(request: Request, user: UserRegister = Form(...), db: As
     logger.info("Шаблон успешно создан")
 
     logger.info("Отправляем сообщение")
-    send_email(
+    await send_email(
         to=user_email,
         subject="Код подтверждения",
         body=html_body,

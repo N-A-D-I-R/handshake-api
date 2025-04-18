@@ -45,7 +45,7 @@ async def verify_user(data: EmailCodeConfirm = Form(...), db: AsyncSession = Dep
 
     # Отправляем уведомление на почту
     html = render_template("account_verified.html", name=user.name)
-    send_email(
+    await send_email(
         to=user.email,
         subject="Ваш аккаунт подтверждён!",
         body=html,
