@@ -10,7 +10,7 @@ class UserRegister(BaseModel):
     password: str = Field(..., min_length=8, max_length=50, description="Придумайте пароль", example="")
 
 class EmailCodeConfirm(BaseModel):
-    email: EmailStr
+    email: EmailStr = Field(..., description="E-mail", example="")
     code: str = Field(..., min_length=6, max_length=6, description="Введите код подтверждения", example="")
 
 class UserAuth(BaseModel):
