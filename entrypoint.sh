@@ -1,6 +1,5 @@
 #!/bin/bash
 
-service postgresql start
 service redis-server start
 
 sleep 5

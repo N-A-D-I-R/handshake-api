@@ -4,11 +4,7 @@ FROM python:3.11.2
 WORKDIR /app
 
 # Update the package list and upgrade installed packages
-RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
-
-COPY  .env .
-COPY  setup-postgres.sh .
-RUN sh ./setup-postgres.sh
+RUN apt-get update && apt-get upgrade -y && apt-get install -y redis-server && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file into the container
 COPY requirements.txt .
@@ -20,7 +16,6 @@ RUN pip install -U pip && pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 8000
-EXPOSE 5432
 EXPOSE 6379
 
 RUN chmod +x ./entrypoint.sh
