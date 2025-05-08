@@ -56,9 +56,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Handshake", description="...", openapi_prefix="/api/v1", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["localhost:8080", "gobarter.ru", "гобартер.рф"],
-    allow_methods=["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
+    allow_origins=["*"],
+    allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
 )
