@@ -65,8 +65,9 @@ app.include_router(notification_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Разрешить все домены
-    allow_credentials=True,  # Разрешить куки и авторизацию
-    allow_methods=["*"],  # Разрешить все HTTP-методы (GET, POST, PUT и т. д.)
-    allow_headers=["*"],  # Разрешить все заголовки
+    allow_credentials=True,
+    allow_origins=["localhost:8080", "gobarter.ru", "гобартер.рф"],
+    allow_methods=["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
