@@ -54,13 +54,6 @@ async def lifespan(app: FastAPI):
         pass  # Игнорируем ошибку отмены задачи
 
 app = FastAPI(title="Handshake", description="...", openapi_prefix="/api/v1", lifespan=lifespan)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-)
 
 # Подключение роутеров
 app.include_router(main_route)
@@ -69,3 +62,11 @@ app.include_router(post_router)
 app.include_router(superuser_router)
 app.include_router(moderation_router)
 app.include_router(notification_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешить все домены
+    allow_credentials=True,  # Разрешить куки и авторизацию
+    allow_methods=["*"],  # Разрешить все HTTP-методы (GET, POST, PUT и т. д.)
+    allow_headers=["*"],  # Разрешить все заголовки
+)
