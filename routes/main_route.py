@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, text
 
@@ -8,7 +8,7 @@ from app.schemas import PostSchema
 
 router = APIRouter(tags=["Main"])
 
-@router.get("/", response_model=list[PostSchema], status_code=status.HTTP_200_OK, name="Главная страница")
+@router.get("/offers", response_model=list[PostSchema], status_code=status.HTTP_200_OK, name="Главная страница")
 async def get_posts(search: str = Query(default=None, description="Найти пост"), db: AsyncSession = Depends(get_db)):
     if search:
         result = await db.execute(text("""
@@ -19,13 +19,20 @@ async def get_posts(search: str = Query(default=None, description="Найти п
             ORDER BY ts_rank(search_vector, plainto_tsquery('russian', :search)) DESC,
                      similarity(title, :search) DESC
             LIMIT 10
-        """).bindparams(title=search))
-        
+        """).bindparams(search=search))
+
         rows = result.fetchall()
+        
+        if not rows:
+            raise HTTPException(status_code=404, detail="Посты не найдены")
+
         posts = [Post(id=row[0], title=row[1], need=row[2], offer=row[3], user_id=row[4]) for row in rows]
     
     else:
         result = await db.execute(select(Post).where(Post.status == "approved"))
         posts = result.scalars().all()
+
+        if not posts:
+            return []
 
     return [PostSchema.model_validate(post, from_attributes=True) for post in posts]

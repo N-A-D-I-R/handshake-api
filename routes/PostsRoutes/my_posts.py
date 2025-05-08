@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -27,10 +27,17 @@ async def get_my_posts(search: str = Query(default=None, description="Найти
         """).bindparams(user_id=current_user.id, title=search))
         
         rows = result.fetchall()
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="Посты не найдены")
+
         posts = [Post(id=row[0], title=row[1], need=row[2], offer=row[3], user_id=row[4]) for row in rows]
     
     else:
         result = await db.execute(select(Post).where(Post.user_id == current_user.id))
         posts = result.scalars().all()
+
+        if not posts:
+            return []
 
     return [PostSchema.model_validate(post, from_attributes=True) for post in posts]
