@@ -55,6 +55,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Handshake", description="...", openapi_prefix="/api/v1", lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["http://localhost:8080/api/v1", "https://gobarter.ru/api/v1", "https://гобартер.рф/api/v1"],
+    allow_methods=["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
+
 # Подключение роутеров
 app.include_router(main_route)
 app.include_router(user_router)
@@ -62,12 +71,3 @@ app.include_router(post_router)
 app.include_router(superuser_router)
 app.include_router(moderation_router)
 app.include_router(notification_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["localhost:8080", "gobarter.ru", "гобартер.рф"],
-    allow_methods=["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-)
