@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from routes.main_route import router as main_route
 from routes.UserRoutes import router as user_router
 from routes.PostsRoutes import router as post_router
@@ -51,7 +53,15 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass  # Игнорируем ошибку отмены задачи
 
-app = FastAPI(title="Handshake", description="...", openapi_prefix="/v1", lifespan=lifespan)
+app = FastAPI(title="Handshake", description="...", openapi_prefix="/api/v1", lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
 
 # Подключение роутеров
 app.include_router(main_route)
