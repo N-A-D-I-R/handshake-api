@@ -61,7 +61,6 @@ app.add_middleware(
     allow_origins=["localhost:8080", "gobarter.ru", "гобартер.рф"],
     allow_methods=["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
     allow_headers=["*"],
-    expose_headers=["*"],
 )
 
 # Подключение роутеров
