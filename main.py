@@ -58,7 +58,7 @@ app = FastAPI(title="Handshake", description="...", openapi_prefix="/api/v1", li
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["localhost:8080", "gobarter.ru", "гобартер.рф"],
+    allow_origins=["http://localhost:8080", "https://gobarter.ru", "https://гобартер.рф"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
