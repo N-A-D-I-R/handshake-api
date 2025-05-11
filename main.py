@@ -59,7 +59,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
     allow_origins=["localhost:8080", "gobarter.ru", "гобартер.рф"],
-    allow_methods=["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
+    allow_methods=["GET,PUT,POST,DELETE,PATCH"],
     allow_headers=["*"],
 )
 
