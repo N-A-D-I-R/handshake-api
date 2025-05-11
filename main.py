@@ -61,7 +61,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
     allow_headers=["*"],
-    expose_headers=["*"],
+    #expose_headers=["*"],
 )
 
 # Подключение роутеров
