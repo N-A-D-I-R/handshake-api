@@ -6,7 +6,7 @@ from logging.config import fileConfig
 from sqlalchemy import create_engine
 from sqlalchemy import pool
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname())))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.settings import POSTGRESQL_DATABASE_URL
 from app.models import Base
