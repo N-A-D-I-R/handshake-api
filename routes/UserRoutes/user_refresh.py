@@ -10,7 +10,7 @@ from app.database import get_db
 from app.models import RefreshToken
 from app.schemas import TokenResponse
 from app.utils import get_jwt_data, bearer_scheme
-from app.auth import create_access_token, create_refresh_token
+from app.auth import create_access_token
 
 from datetime import datetime, timedelta, timezone
 
@@ -49,10 +49,9 @@ async def refresh(
 
     # Генерация новых токенов
     new_access_token = create_access_token(user_id)
-    new_refresh_token = create_refresh_token(user_id)
 
     # Обновление токена в базе
-    db_token.token = new_refresh_token
+    db_token.token = data
     db_token.expires_at = datetime.now(timezone.utc) + timedelta(days=30)
     await db.commit()
 
@@ -60,5 +59,4 @@ async def refresh(
 
     return TokenResponse(
         access_token=new_access_token,
-        refresh_token=new_refresh_token
     )
