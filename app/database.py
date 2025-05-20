@@ -12,7 +12,6 @@ engine = create_async_engine(POSTGRESQL_DATABASE_URL, echo=True)
 SessionLocal = async_sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession)
 
-
 # Функция инициализации базы данных
 async def init_db():
     async with engine.begin() as conn:
@@ -23,8 +22,6 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
 # Асинхронная зависимость для получения сессии БД
-
-
 async def get_db():
     async with SessionLocal() as session:
         yield session

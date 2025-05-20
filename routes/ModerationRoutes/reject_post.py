@@ -4,12 +4,19 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models import User, Post
-from app.utils import get_current_superuser, create_notification
+from app.utils import get_current_user, create_notification
 
 router = APIRouter(tags=["Moderation"])
 
 @router.post("/reject/{post_id}", status_code=status.HTTP_201_CREATED, summary="Отклонить и удалить пост")
-async def reject_post(post_id: int, db: AsyncSession = Depends(get_db), superuser=Depends(get_current_superuser)):
+async def reject_post(
+    post_id: int, 
+    db: AsyncSession = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user.is_moderator:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Страница не найдена")
+    
     result = await db.execute(select(Post).where(Post.id == post_id))
     post = result.scalars().first()
 

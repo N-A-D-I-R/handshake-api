@@ -6,7 +6,7 @@ from app.models import User, Post
 from app.schemas import PostCreate
 from app.utils import get_current_user, create_notification
 
-router = APIRouter(tags=["Posts"])
+router = APIRouter(tags=["Offers"])
 
 @router.post("/create", status_code=status.HTTP_201_CREATED, name="Создание поста")
 async def create_post(

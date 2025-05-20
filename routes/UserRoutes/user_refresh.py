@@ -12,56 +12,53 @@ from app.schemas import TokenResponse
 from app.utils import get_jwt_data, bearer_scheme
 from app.auth import create_access_token, create_refresh_token
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Users"])
 
-@router.get("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Обновление токена пользователя")
+@router.post("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Обновление токена пользователя")
 async def refresh(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme), 
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db)
 ):
     jwt_token = credentials.credentials
-    
     data = get_jwt_data(jwt_token, "refresh")
 
     user_id = data.get("id")
-
     if not user_id:
-        logger.info("Токен не содержит ID пользователя")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Невалидный токен"
-        )
-    
-    # Проверяем, существует ли refresh токен в базе данных
-    result = await db.execute(
-        select(RefreshToken).filter(RefreshToken.token == jwt_token)
-    )
+        logger.warning("Refresh токен не содержит ID пользователя")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Невалидный токен")
+
+    # Проверка наличия токена в базе
+    result = await db.execute(select(RefreshToken).filter(RefreshToken.token == jwt_token))
     db_token = result.scalars().first()
 
     if not db_token:
-        logger.info("Недействительный refresh токен")
-        raise HTTPException(status_code=401, detail="Недействительный refresh токен")
-    
+        logger.warning("Неверный refresh токен")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный refresh токен")
+
+    # Проверка срока действия
     if db_token.expires_at < datetime.now(timezone.utc):
-        # Токен просрочен
         await db.delete(db_token)
         await db.commit()
-        raise HTTPException(status_code=401, detail="Refresh токен просрочен")
+        logger.info("Просроченный refresh токен удалён")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh токен просрочен")
 
-    # Генерируем новые токены
+    # Генерация новых токенов
     new_access_token = create_access_token(user_id)
     new_refresh_token = create_refresh_token(user_id)
 
-    # Обновляем refresh токен в БД
+    # Обновление токена в базе
     db_token.token = new_refresh_token
+    db_token.expires_at = datetime.now(timezone.utc) + timedelta(days=30)
     await db.commit()
 
-    return {
-        "access_token": new_access_token,
-        "refresh_token": new_refresh_token
-    }
+    logger.info(f"Refresh токен успешно обновлён для пользователя ID {user_id}")
+
+    return TokenResponse(
+        access_token=new_access_token,
+        refresh_token=new_refresh_token
+    )

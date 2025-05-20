@@ -3,7 +3,7 @@ import random
 import logging
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -12,7 +12,7 @@ from passlib.hash import bcrypt
 
 from typing import Annotated
 
-from .models import User, SuperUser, Post
+from .models import User, Post
 from .auth import get_jwt_data, is_token_blacklisted
 from .database import get_db
 
@@ -33,49 +33,29 @@ async def get_current_user(
 
     if not user_id:
         logger.info("JWT не содержит ID пользователя")
-        raise HTTPException(status_code=401, detail="Недействительный токен")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный токен")
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalars().first()
 
     if not user:
         logger.info(f"Пользователь ID {user_id} не найден")
-        raise HTTPException(status_code=401, detail="Пользователь не найден")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
 
     if not user.is_verified:
-        raise HTTPException(status_code=403, detail="Пользователь не подтвердил почту")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Пользователь не подтвердил почту")
 
     if await is_token_blacklisted(jwt_token):
-        raise HTTPException(status_code=401, detail="Токен недействителен")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен недействителен")
 
     return user
 
-# Проверка авторизации суперпользователя
-async def get_current_superuser(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> SuperUser:
-    jwt_token = credentials.credentials
-
-    data = get_jwt_data(jwt_token, "access")
-    superuser_id = data.get("id")
-
-    if not superuser_id:
-        logger.info("JWT не содержит ID суперпользователя")
-        raise HTTPException(status_code=401, detail="Недействительный токен")
-
-    result = await db.execute(select(SuperUser).where(SuperUser.id == superuser_id))
-    superuser = result.scalars().first()
-
-    if not superuser:
-        logger.info(f"Суперпользователь с ID {superuser_id} не найден")
-        raise HTTPException(status_code=401, detail="Суперпользователь не найден")
-    
-    if await is_token_blacklisted(jwt_token):
-        logger.info("Токен недействителен")
-        raise HTTPException(status_code=401, detail="Токен недействителен")
-
-    return superuser
+# Контроллер для передачи запроса в параметры функции проверки пользователя
+async def get_current_user_from_request(request: Request, db: AsyncSession) -> User:
+    credentials = await bearer_scheme(request)
+    if not credentials:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет токена")
+    return await get_current_user(credentials, db)
 
 # Хеширование пароля перед сохранением в БД
 def hash_password(password: str) -> str:

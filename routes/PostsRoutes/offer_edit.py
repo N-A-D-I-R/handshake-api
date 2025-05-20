@@ -7,7 +7,7 @@ from app.models import User, Post
 from app.schemas import PostSchema, PostCreate
 from app.utils import get_current_user, verify_post_owner, create_notification
 
-router = APIRouter(tags=["Posts"])
+router = APIRouter(tags=["Offers"])
 
 @router.put("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Редактирование поста")
 async def edit_post(id: int, payload: PostCreate = Form(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):

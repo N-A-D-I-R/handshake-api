@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from typing import List
 from datetime import datetime
 
@@ -8,7 +8,14 @@ class UserRegister(BaseModel):
     email: EmailStr = Field(..., description="Укажите ваш e-mail", example="")
     name: str = Field(..., min_length=3, max_length=50, description="Ваше имя", example="")
     password: str = Field(..., min_length=8, max_length=50, description="Придумайте пароль", example="")
+    confirm_password: str = Field(..., min_length=8, max_length=50, description="Повторите пароль", example="")
 
+    @model_validator(mode='after')
+    def check_passwords_match(self):
+        if self.password != self.confirm_password:
+            raise ValueError('Пароли не совпадают')
+        return self
+    
 class EmailCodeConfirm(BaseModel):
     email: EmailStr = Field(..., description="E-mail", example="")
     code: str = Field(..., min_length=6, max_length=6, description="Введите код подтверждения", example="")
@@ -27,8 +34,9 @@ class TokenResponse(BaseModel):
 
 class PostBase(BaseModel):
     title: str = Field(..., min_length=3, max_length=50, description="Заголовок поста")
-    need: str = Field(..., min_length=3, max_length=1000, description="Что нужно")
-    offer: str = Field(..., min_length=3, max_length=1000, description="Что предлагаете")
+    need: str = Field(..., min_length=3, max_length=100, description="Что нужно")
+    offer: str = Field(..., min_length=3, max_length=100, description="Что предлагаете")
+    description: str = Field(..., min_length=3, max_length=5000, description="Дополнительное описание")
 
 class PostCreate(PostBase):
     pass

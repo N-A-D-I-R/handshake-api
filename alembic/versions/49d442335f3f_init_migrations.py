@@ -1,8 +1,8 @@
 """Init migrations
 
-Revision ID: 29c7541eccc1
+Revision ID: 49d442335f3f
 Revises: 
-Create Date: 2025-04-13 07:05:13.935597
+Create Date: 2025-05-20 18:27:08.088110
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '29c7541eccc1'
+revision: str = '49d442335f3f'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,26 +28,19 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('email')
     )
     op.create_index(op.f('ix_email_confirmations_email'), 'email_confirmations', ['email'], unique=False)
-    op.create_table('superusers',
-    sa.Column('id', sa.Integer(), server_default=sa.text("nextval('shared_user_id_seq')"), nullable=False),
-    sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('username', sa.String(length=255), nullable=False),
-    sa.Column('password', sa.String(length=255), nullable=False),
-    sa.Column('ip_address', sa.String(length=45), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('username')
-    )
     op.create_table('users',
-    sa.Column('id', sa.Integer(), server_default=sa.text("nextval('shared_user_id_seq')"), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('password', sa.String(length=255), nullable=False),
     sa.Column('ip_address', sa.String(length=45), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
+    sa.Column('is_moderator', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_table('notifications',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -64,6 +57,7 @@ def upgrade() -> None:
     sa.Column('title', sa.String(length=255), nullable=False),
     sa.Column('need', sa.Text(), nullable=False),
     sa.Column('offer', sa.Text(), nullable=False),
+    sa.Column('description', sa.Text(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('search_vector', postgresql.TSVECTOR(), nullable=True),
     sa.Column('status', sa.Enum('pending', 'approved', name='post_status'), nullable=True),
@@ -80,13 +74,11 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('token', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('superuser_id', sa.Integer(), nullable=True),
     sa.Column('user_agent', sa.Text(), nullable=True),
     sa.Column('ip_address', sa.String(length=45), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['superuser_id'], ['superusers.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('token')
@@ -108,9 +100,9 @@ def downgrade() -> None:
     op.drop_table('posts')
     op.drop_index(op.f('ix_notifications_id'), table_name='notifications')
     op.drop_table('notifications')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
-    op.drop_table('superusers')
     op.drop_index(op.f('ix_email_confirmations_email'), table_name='email_confirmations')
     op.drop_table('email_confirmations')
     # ### end Alembic commands ###

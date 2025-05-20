@@ -17,7 +17,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Users"])
 
 @router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED, name="Регистрация пользователя")
-async def register_user(request: Request, user: UserRegister = Form(...), db: AsyncSession = Depends(get_db)):
+async def register_user(
+    request: Request, 
+    user: UserRegister = Form(...), 
+    db: AsyncSession = Depends(get_db)
+):
     user_email = user.email.strip().lower()
 
     existing_user = await db.execute(select(User).filter(User.email == user_email))
@@ -41,7 +45,8 @@ async def register_user(request: Request, user: UserRegister = Form(...), db: As
             name=user.name,
             password=hash_password(user.password),
             ip_address=request.client.host,
-            is_verified=False
+            is_verified=False,
+            is_moderator=False
         )
         db.add(db_user)
 

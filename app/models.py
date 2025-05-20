@@ -1,72 +1,71 @@
-import re
-
-from sqlalchemy import Column, Integer, String, Boolean, Enum
-from sqlalchemy import Index, ForeignKey, Text, DateTime, Sequence
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey
+from sqlalchemy import Text, DateTime, Index
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
 Base = declarative_base()
 
-user_id_seq = Sequence('shared_user_id_seq')
-
 class User(Base):
     __tablename__ = "users"
-    
-    id = Column(Integer, user_id_seq, primary_key=True, server_default=user_id_seq.next_value())
+
+    id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
     ip_address = Column(String(45), nullable=False)
     is_verified = Column(Boolean, default=False)
+    is_moderator = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     posts = relationship("Post", back_populates="owner", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 
-    @validates("email")
-    def validate_email(self, key, value):
-        email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-        if not re.match(email_regex, value):
-            raise ValueError(f"Неверный формат E-mail")
-        return value
-
     def __repr__(self):
-        return f"<User(id={self.id}, email='{self.email}')>"
-
-class SuperUser(Base):
-    __tablename__ = "superusers"
-    
-    id = Column(Integer, user_id_seq, primary_key=True, server_default=user_id_seq.next_value())
-    name = Column(String(255), nullable=False)
-    username = Column(String(255), unique=True, nullable=False)
-    password = Column(String(255), nullable=False)
-    ip_address = Column(String(45), nullable=False)
-
-    def __repr__(self):
-        return f"<SuperUser(id={self.id}, username='{self.username}')>"
+        return (
+            f"<User("
+            f"id={self.id}, "
+            f"name='{self.name}', "
+            f"email='{self.email}', "
+            f"is_verified={self.is_verified}, "
+            f"is_moderator={self.is_moderator}, "
+            f"created_at='{self.created_at}'"
+            f")>"
+        )
 
 class Post(Base):
     __tablename__ = "posts"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False, index=True)
-
     need = Column(Text, nullable=False)
     offer = Column(Text, nullable=False)
-    
+    description = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     search_vector = Column(TSVECTOR, index=True)
     status = Column(Enum("pending", "approved", name="post_status"), default="pending")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     owner = relationship("User", back_populates="posts")
-    
+
     __table_args__ = (
         Index("ix_post_title_trgm", title, postgresql_using="gin", postgresql_ops={"title": "gin_trgm_ops"}),
-        Index("ix_post_search_vector", search_vector, postgresql_using="gin")
+        Index("ix_post_search_vector", search_vector, postgresql_using="gin"),
     )
+
+    def __repr__(self):
+        return (
+            f"<Post("
+            f"id={self.id}, "
+            f"title='{self.title}', "
+            f"offer='{self.offer}', "
+            f"description={self.description}, "
+            f"user_id={self.user_id}, "
+            f"status={self.status}, "
+            f"created_at='{self.created_at}'"
+            f")>"
+        )
 
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
@@ -74,12 +73,24 @@ class RefreshToken(Base):
     id = Column(Integer, primary_key=True, index=True)
     token = Column(String, unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
-    superuser_id = Column(Integer, ForeignKey("superusers.id", ondelete="CASCADE"), nullable=True)
     user_agent = Column(Text)
-    ip_address = Column(String(45))  # IPv4 и IPv6
+    ip_address = Column(String(45))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=False)
     is_active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return (
+            f"<RefreshToken("
+            f"id={self.id}, "
+            f"user_id='{self.user_id}', "
+            f"user_agent='{self.user_agent}', "
+            f"ip_address={self.ip_address}, "
+            f"created_at={self.created_at}, "
+            f"expires_at={self.expires_at}, "
+            f"is_active='{self.is_active}'"
+            f")>"
+        )
 
 class EmailConfirmation(Base):
     __tablename__ = "email_confirmations"
@@ -87,6 +98,14 @@ class EmailConfirmation(Base):
     email = Column(String, primary_key=True, index=True)
     code = Column(String, nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"<EmailConfirmation("
+            f"email={self.email}, "
+            f"expires_at={self.expires_at}, "
+            f")>"
+        )
 
 class Notification(Base):
     __tablename__ = "notifications"
@@ -99,3 +118,15 @@ class Notification(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="notifications")
+
+    def __repr__(self):
+        return (
+            f"<Notification("
+            f"id={self.id}, "
+            f"user_id='{self.user_id}', "
+            f"title='{self.title}', "
+            f"message={self.message}, "
+            f"is_read={self.is_read}, "
+            f"created_at='{self.created_at}'"
+            f")>"
+        )
