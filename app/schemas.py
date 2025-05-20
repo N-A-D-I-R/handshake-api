@@ -30,7 +30,6 @@ class SuperUserAuth(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
-    refresh_token: str
 
 class PostBase(BaseModel):
     title: str = Field(..., min_length=3, max_length=50, description="Заголовок поста")
