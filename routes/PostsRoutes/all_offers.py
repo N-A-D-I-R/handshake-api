@@ -33,7 +33,7 @@ async def get_offers(
 
     if search:
         raw_sql = """
-            SELECT id, title, need, offer, user_id, status
+            SELECT id, title, need, offer, description, user_id, status
             FROM posts
             WHERE status = 'approved'
             {user_filter}
@@ -52,14 +52,18 @@ async def get_offers(
         result = await db.execute(text(raw_sql).bindparams(**params_dict))
         rows = result.fetchall()
 
-        posts = [Post(
-            id=row[0], 
-            title=row[1], 
-            need=row[2], 
-            offer=row[3], 
-            user_id=row[4], 
-            status=row[5]) 
-            for row in rows]
+        posts = [
+            Post(
+                id=row[0],
+                title=row[1],
+                need=row[2],
+                offer=row[3],
+                description=row[4],
+                user_id=row[5],
+                status=[6]
+            )
+            for row in rows
+        ]
 
         return paginate(posts, params)
 

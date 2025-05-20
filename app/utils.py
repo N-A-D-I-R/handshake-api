@@ -50,7 +50,7 @@ async def get_current_user(
 
     return user
 
-# Контроллер для передачи запроса в параметры функции проверки пользователя
+# Функция для передачи запроса в параметры функции проверки пользователя
 async def get_current_user_from_request(request: Request, db: AsyncSession) -> User:
     credentials = await bearer_scheme(request)
     if not credentials:

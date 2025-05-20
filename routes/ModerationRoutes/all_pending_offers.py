@@ -26,7 +26,7 @@ async def get_pending_offers(
 
     if search:
         result = await db.execute(text("""
-            SELECT id, title, need, offer, user_id, status
+            SELECT id, title, need, offer, description, user_id, status
             FROM posts
             WHERE status = 'pending' AND (
                 search_vector @@ plainto_tsquery('russian', :search)
@@ -47,8 +47,9 @@ async def get_pending_offers(
                 title=row[1],
                 need=row[2],
                 offer=row[3],
-                user_id=row[4],
-                status=[5]
+                description=row[4],
+                user_id=row[5],
+                status=[6]
             )
             for row in rows
         ]
