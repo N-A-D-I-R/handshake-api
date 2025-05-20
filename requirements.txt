@@ -16,3 +16,4 @@ python-jose[cryptography]
 jinja2
 aiosmtplib
 fastapi-pagination
+psycopg2-binary

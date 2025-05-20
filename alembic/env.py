@@ -68,7 +68,7 @@ def run_migrations_online() -> None:
 
     """
     connectable = create_engine(
-        SYNC_DATABASE_URL,
+        POSTGRESQL_DATABASE_URL,
         poolclass=pool.NullPool,
     )
 
