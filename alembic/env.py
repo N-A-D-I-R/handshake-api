@@ -1,11 +1,17 @@
+import sys
+import os
+
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
+from sqlalchemy import create_engine
 from sqlalchemy import pool
 
-from alembic import context
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname())))
 
+from app.settings import POSTGRESQL_DATABASE_URL
 from app.models import Base
+
+from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -40,7 +46,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = POSTGRESQL_DATABASE_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -59,9 +65,8 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    connectable = create_engine(
+        POSTGRESQL_DATABASE_URL,
         poolclass=pool.NullPool,
     )
 
