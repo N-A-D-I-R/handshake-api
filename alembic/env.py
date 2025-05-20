@@ -13,7 +13,7 @@ from app.models import Base
 
 from alembic import context
 
-SYNC_DATABASE_URL = POSTGRESQL_DATABASE_URL.replace("postgresql+asyncpg", "postgresql")
+SYNC_DATABASE_URL = POSTGRESQL_DATABASE_URL.replace("postgresql+asyncpg", "postgresql+psycopg2")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -68,7 +68,7 @@ def run_migrations_online() -> None:
 
     """
     connectable = create_engine(
-        POSTGRESQL_DATABASE_URL,
+        SYNC_DATABASE_URL,
         poolclass=pool.NullPool,
     )
 
