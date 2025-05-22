@@ -13,7 +13,7 @@ from app.utils import get_current_user
 
 router = APIRouter(tags=["Offers"])
 
-@router.get("/my", response_model=Page[PostSchema], status_code=status.HTTP_200_OK, name="Список моих постов")
+@router.get("/my", response_model=Page[PostSchema], status_code=status.HTTP_200_OK, name="Мои посты")
 async def get_my_posts(
     search: str = Query(default=None, description="Найти пост"), 
     current_user: User = Depends(get_current_user), 
