@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from . import all_offers, my_offers, offer_create, offer_delete, offer_edit, get_offer
+from . import all_offers, get_offer, my_offers, offer_create, offer_edit, offer_delete
 
 router = APIRouter(prefix="/offers")
 router.include_router(all_offers.router)
