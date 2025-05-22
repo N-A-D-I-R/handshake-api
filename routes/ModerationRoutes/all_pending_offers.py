@@ -37,7 +37,6 @@ async def get_pending_offers(
         """).bindparams(search=search))
 
         rows = result.fetchall()
-
         if not rows:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Посты не найдены")
 
@@ -53,7 +52,6 @@ async def get_pending_offers(
             )
             for row in rows
         ]
-
         return paginate(posts, params)
 
     query = select(Post).where(Post.status == "pending")

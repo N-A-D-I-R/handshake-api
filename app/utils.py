@@ -50,14 +50,6 @@ async def get_current_user(
 
     return user
 
-# Функция для передачи запроса в параметры функции проверки пользователя
-async def get_current_user_from_request(request: Request, db: AsyncSession) -> User:
-    token = get_token_from_request(request)
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет токена")
-    credentials = HTTPAuthorizationCredentials(bearer_scheme="Bearer", token=token)
-    return await get_current_user(credentials, db)
-
 # Хеширование пароля перед сохранением в БД
 def hash_password(password: str) -> str:
     return bcrypt.hash(password)

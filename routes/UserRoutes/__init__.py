@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from ..UserRoutes import user_create, user_login, user_logout, user_refresh, user_verify
+
+from . import user_create, user_login, user_logout, user_refresh, user_verify
 
 router = APIRouter(prefix="/user")
 router.include_router(user_create.router)
