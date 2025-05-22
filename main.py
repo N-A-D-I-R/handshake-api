@@ -10,11 +10,11 @@ from routes.NotificationRoutes import router as notification_router
 import logging
 import asyncio
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import delete
 
-from app.models import RefreshToken
+from app.models import RefreshToken, User
 from app.database import get_db, init_db
 
 from contextlib import asynccontextmanager
@@ -34,9 +34,17 @@ async def lifespan(app: FastAPI):
     async def cleanup():
         while True:
             async for db in get_db():
-                await db.execute(delete(RefreshToken).where(RefreshToken.expires_at < datetime.utcnow()))
+
+                await db.execute(
+                    delete(RefreshToken).where(RefreshToken.expires_at < datetime.now(timezone.utc))
+                )
+
+                await db.execute(
+                    delete(User).where(User.is_verified == False)
+                )
+
                 await db.commit()
-            await asyncio.sleep(3600)  # повтор через час
+            await asyncio.sleep(1800)  # повтор через час
 
     # Запуск фонов задачи
     cleanup_task = asyncio.create_task(cleanup())

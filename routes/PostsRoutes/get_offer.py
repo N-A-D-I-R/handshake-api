@@ -14,6 +14,6 @@ async def get_post(id: int, db: AsyncSession = Depends(get_db)):
     post = result.scalar_one_or_none()
 
     if post is None:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пост не найден")
 
     return PostSchema.model_validate(post, from_attributes=True)

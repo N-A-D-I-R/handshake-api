@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models import User, RefreshToken
-from app.schemas import UserAuth, TokenResponse
+from app.schemas import UserAuth, AuthTokensResponse
 from app.auth import create_access_token, create_refresh_token
 from app.utils import verify_password, create_notification
 from app.email import send_email, render_template
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Users"])
 
-@router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Вход пользователя")
+@router.post("/login", response_model=AuthTokensResponse, status_code=status.HTTP_200_OK, name="Вход пользователя")
 async def login(
     request: Request,
     user_data: UserAuth = Form(...),
@@ -66,7 +66,7 @@ async def login(
     # Отправляем уведомление пользователю
     await create_notification(user.id, "Вход в аккаунт", f"Вы вошли в аккаунт с IP {request.client.host}", db)
 
-    return {
-        "access_token": create_access_token(user.id),
-        "refresh_token": refresh_token
-    }
+    return AuthTokensResponse(
+        access_token=create_access_token(user.id),
+        refresh_token=refresh_token,
+    )

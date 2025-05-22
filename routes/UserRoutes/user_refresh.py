@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models import RefreshToken
-from app.schemas import TokenResponse
+from app.schemas import RefreshTokenResponse
 from app.utils import get_jwt_data, bearer_scheme
-from app.auth import create_access_token
+from app.auth import create_access_token, create_refresh_token
 
 from datetime import datetime, timedelta, timezone
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Users"])
 
-@router.post("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK, name="Обновление токена пользователя")
+@router.post("/refresh", response_model=RefreshTokenResponse, status_code=status.HTTP_200_OK, name="Обновление токена пользователя")
 async def refresh(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db)
@@ -49,14 +49,15 @@ async def refresh(
 
     # Генерация новых токенов
     new_access_token = create_access_token(user_id)
+    new_refresh_token = create_refresh_token(user_id)
 
     # Обновление токена в базе
-    db_token.token = data
+    db_token.token = new_refresh_token
     db_token.expires_at = datetime.now(timezone.utc) + timedelta(days=30)
     await db.commit()
 
     logger.info(f"Refresh токен успешно обновлён для пользователя ID {user_id}")
 
-    return TokenResponse(
+    return RefreshTokenResponse(
         access_token=new_access_token,
     )

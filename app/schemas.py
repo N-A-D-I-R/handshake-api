@@ -28,14 +28,18 @@ class SuperUserAuth(BaseModel):
     username: str = Field(..., description="Имя суперпользователя", example="")
     password: str = Field(..., min_length=8, max_length=50, description="Пароль суперпользователя", example="")
 
-class TokenResponse(BaseModel):
+class AuthTokensResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+
+class RefreshTokenResponse(BaseModel):
     access_token: str
 
 class PostBase(BaseModel):
-    title: str = Field(..., min_length=3, max_length=50, description="Заголовок поста")
-    need: str = Field(..., min_length=3, max_length=100, description="Что нужно")
-    offer: str = Field(..., min_length=3, max_length=100, description="Что предлагаете")
-    description: str = Field(..., min_length=3, max_length=5000, description="Дополнительное описание")
+    title: str = Field(..., min_length=3, max_length=50, description="Заголовок поста", example="")
+    need: str = Field(..., min_length=3, max_length=100, description="Что нужно", example="")
+    offer: str = Field(..., min_length=3, max_length=100, description="Что предлагаете", example="")
+    description: str = Field(..., min_length=3, max_length=5000, description="Дополнительное описание", example="")
 
 class PostCreate(PostBase):
     pass

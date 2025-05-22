@@ -13,7 +13,7 @@ from passlib.hash import bcrypt
 from typing import Annotated
 
 from .models import User, Post
-from .auth import get_jwt_data, is_token_blacklisted
+from .auth import get_jwt_data, get_token_from_request, is_token_blacklisted
 from .database import get_db
 
 logging.basicConfig(level=logging.INFO)
@@ -52,9 +52,10 @@ async def get_current_user(
 
 # Функция для передачи запроса в параметры функции проверки пользователя
 async def get_current_user_from_request(request: Request, db: AsyncSession) -> User:
-    credentials = await bearer_scheme(request)
-    if not credentials:
+    token = get_token_from_request(request)
+    if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет токена")
+    credentials = HTTPAuthorizationCredentials(bearer_scheme="Bearer", token=token)
     return await get_current_user(credentials, db)
 
 # Хеширование пароля перед сохранением в БД
