@@ -8,7 +8,6 @@ from datetime import datetime, timedelta, timezone
 
 from .settings import JWT_SECRET, JWT_ALGORITHM, REDIS_URL
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Функции создания токенов

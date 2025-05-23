@@ -16,7 +16,6 @@ from .models import User, Post
 from .auth import get_jwt_data, is_token_blacklisted
 from .database import get_db
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 bearer_scheme = HTTPBearer(auto_error=False)
