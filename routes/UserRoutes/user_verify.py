@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Form, HTTPException, status
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -14,7 +15,7 @@ router = APIRouter(tags=["Users"])
 
 @router.post("/verify", response_model=dict, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
 async def verify_user(data: EmailCodeConfirm = Form(...), db: AsyncSession = Depends(get_db)):
-    email = data.email.strip().lower()  # Нормализуем email
+    email = data.email.strip().lower()
 
     # Получаем подтверждение
     stmt = select(EmailConfirmation).filter(EmailConfirmation.email == email)
@@ -22,13 +23,13 @@ async def verify_user(data: EmailCodeConfirm = Form(...), db: AsyncSession = Dep
     confirmation = result.scalars().first()
 
     if not confirmation:
-        raise HTTPException(status_code=400, detail="Подтверждение не найдено")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Подтверждение не найдено")
 
     if confirmation.code != data.code:
-        raise HTTPException(status_code=400, detail="Неверный код подтверждения")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный код подтверждения")
 
     if confirmation.expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=400, detail="Код подтверждения просрочен")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Код подтверждения просрочен")
 
     # Обновляем статус пользователя
     user_stmt = select(User).filter(User.email == email)
@@ -36,7 +37,7 @@ async def verify_user(data: EmailCodeConfirm = Form(...), db: AsyncSession = Dep
     user = result.scalars().first()
 
     if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
 
     user.is_verified = True
 

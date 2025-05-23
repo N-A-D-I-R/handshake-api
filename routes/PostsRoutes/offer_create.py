@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Form, status
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -8,7 +9,7 @@ from app.utils import get_current_user, create_notification
 
 router = APIRouter(tags=["Offers"])
 
-@router.post("/create", status_code=status.HTTP_201_CREATED, name="Создание поста")
+@router.post("/new", status_code=status.HTTP_201_CREATED, name="Создать пост")
 async def create_post(
     payload: PostCreate = Form(...), 
     current_user: User = Depends(get_current_user), 

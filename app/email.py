@@ -27,7 +27,7 @@ async def send_email(to: str, subject: str, body: str, html: bool = False) -> No
         msg.attach(MIMEText(body, "plain"))
 
     try:
-        logger.info("Подключаемся к SMTP-серверу через aiosmtplib")
+        logger.info("Подключаемся к SMTP-серверу")
         smtp = SMTP(
             hostname=SMTP_SERVER,
             port=SMTP_PORT,

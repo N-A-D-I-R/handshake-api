@@ -28,11 +28,11 @@ async def login(
 
     if not user or not user.is_verified:
         logger.warning(f"Попытка входа с несуществующим или неподтвержденным email: {user_data.email}")
-        raise HTTPException(status_code=401, detail="Пользователь не найден или не подтвержден")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден или не подтвержден")
 
     if not verify_password(user_data.password, user.password):
         logger.warning(f"Неверный пароль для email: {user_data.email}")
-        raise HTTPException(status_code=401, detail="Неверный email или пароль")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
 
     # создаем refresh токен
     refresh_token = create_refresh_token(user.id)

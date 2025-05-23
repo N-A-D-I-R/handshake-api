@@ -64,7 +64,6 @@ async def invalidate_access_token(jwt_token: str, ttl: int = 3600):
 async def is_token_blacklisted(jwt_token: str) -> bool:
     redis = await get_redis_connection()
     is_blacklisted = await redis.exists(jwt_token)
-    logger.info(f"[Redis] Проверка токена {jwt_token} → {'в blacklist' if is_blacklisted else 'активен'}")
     await redis.close()
     return is_blacklisted
 

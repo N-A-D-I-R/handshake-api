@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -9,7 +10,7 @@ from app.utils import get_current_user, verify_post_owner, create_notification
 
 router = APIRouter(tags=["Offers"])
 
-@router.delete("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Удаление поста")
+@router.delete("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Удалить пост")
 async def delete_post(
     id: int, 
     current_user: User = Depends(get_current_user), 

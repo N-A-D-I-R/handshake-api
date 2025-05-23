@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -21,7 +22,7 @@ async def reject_post(
     post = result.scalars().first()
 
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пост не найден")
 
     # Получаем email пользователя до удаления
     result = await db.execute(select(User).where(User.id == post.user_id))

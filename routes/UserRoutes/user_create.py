@@ -30,7 +30,7 @@ async def register_user(
     if existing:
         if existing.is_verified:
             logger.info("Email уже зарегистрирован")
-            raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email уже зарегистрирован")
         else:
             logger.info("Повторная регистрация")
 
