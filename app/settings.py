@@ -24,5 +24,5 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 SQL_LOGGING = os.getenv("SQL_LOGGING")
 DEBUG = os.getenv("DEBUG")
 
-POSTGRESQL_DATABASE_URL = f"postgresql+asyncpg://crutoi:qwerty123@localhost:5432/startupproject_db"
+POSTGRESQL_DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 REDIS_URL = "redis://localhost:6379"
