@@ -19,9 +19,9 @@ async def get_pending_offers(
     search: Optional[str] = Query(default=None, description="Найти пост"),
     db: AsyncSession = Depends(get_db),
     params: Params = Depends(),
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
-    if not current_user.is_moderator:
+    if not current_user or not current_user.is_moderator:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Страница не найдена")
 
     if search:

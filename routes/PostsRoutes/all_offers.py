@@ -10,7 +10,7 @@ from typing import Optional
 from app.database import get_db
 from app.models import Post, User
 from app.schemas import PostSchema
-from app.utils import get_current_user_optional
+from app.utils import get_current_user
 
 router = APIRouter(tags=["Offers"])
 
@@ -18,7 +18,7 @@ router = APIRouter(tags=["Offers"])
 async def get_offers(
     search: Optional[str] = Query(default=None, description="Найти пост"),
     only_my: bool = Query(default=False, description="Только мои посты"),
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: Optional[User] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     params: Params = Depends(),
 ):

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, HTTPException, status
+
+from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,8 +15,11 @@ router = APIRouter(tags=["Users"])
 async def logout_user(
     request: Request, 
     db: AsyncSession = Depends(get_db), 
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user)
 ):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
+
     token = get_token_from_request(request)
 
     await invalidate_access_token(token)

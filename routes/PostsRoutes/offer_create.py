@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Form, status
+from fastapi import APIRouter, Depends, HTTPException, Form, status
+
+from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,10 +14,14 @@ router = APIRouter(tags=["Offers"])
 @router.post("/new", status_code=status.HTTP_201_CREATED, name="Создать пост")
 async def create_post(
     payload: PostCreate = Form(...), 
-    current_user: User = Depends(get_current_user), 
+    current_user: Optional[User] = Depends(get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
+
     post = Post(**payload.model_dump(), user_id=current_user.id)
+    
     db.add(post)
     await db.commit()
     await db.refresh(post)

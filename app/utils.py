@@ -10,7 +10,7 @@ from sqlalchemy import select
 
 from passlib.hash import bcrypt
 
-from typing import Annotated, Optional
+from typing import Optional
 
 from .models import User, Post
 from .auth import get_jwt_data, is_token_blacklisted
@@ -20,37 +20,8 @@ logger = logging.getLogger(__name__)
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
-# Обязательная проверка авторизации пользователя
+# Проверка авторизации пользователя
 async def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> User:
-    jwt_token = credentials.credentials
-
-    data = get_jwt_data(jwt_token, "access")
-    user_id = data.get("id")
-
-    if not user_id:
-        logger.warning("JWT не содержит ID пользователя")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный токен")
-
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalars().first()
-
-    if not user:
-        logger.warning(f"Пользователь ID {user_id} не найден")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
-
-    if not user.is_verified:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Пользователь не подтвердил почту")
-
-    if await is_token_blacklisted(jwt_token):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен недействителен")
-
-    return user
-
-# Необязательная проверка авторизации пользователя
-async def get_current_user_optional(
     credentials: Optional[HTTPAuthorizationCredentials] = Security(bearer_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> Optional[User]:

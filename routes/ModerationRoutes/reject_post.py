@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -13,11 +15,11 @@ router = APIRouter(tags=["Moderation"])
 async def reject_post(
     post_id: int, 
     db: AsyncSession = Depends(get_db), 
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user)
 ):
-    if not current_user.is_moderator:
+    if not current_user or not current_user.is_moderator:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Страница не найдена")
-    
+
     result = await db.execute(select(Post).where(Post.id == post_id))
     post = result.scalars().first()
 

@@ -10,7 +10,10 @@ from app.schemas import PostSchema
 router = APIRouter(tags=["Offers"])
 
 @router.get("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Открыть пост")
-async def get_post(id: int, db: AsyncSession = Depends(get_db)):
+async def get_post(
+    id: int, 
+    db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(Post).where(Post.id == id, Post.status == "approved"))
     post = result.scalar_one_or_none()
 

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -13,9 +15,12 @@ router = APIRouter(tags=["Offers"])
 @router.delete("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Удалить пост")
 async def delete_post(
     id: int, 
-    current_user: User = Depends(get_current_user), 
+    current_user: Optional[User] = Depends(get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
+
     result = await db.execute(select(Post).filter(Post.id == id))
     post = result.scalars().first()
 

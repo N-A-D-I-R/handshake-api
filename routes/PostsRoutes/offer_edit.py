@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 
+from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -11,7 +13,15 @@ from app.utils import get_current_user, verify_post_owner, create_notification
 router = APIRouter(tags=["Offers"])
 
 @router.put("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Редактировать пост")
-async def edit_post(id: int, payload: PostCreate = Form(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def edit_post(
+    id: int, 
+    payload: PostCreate = Form(...), 
+    current_user: Optional[User] = Depends(get_current_user), 
+    db: AsyncSession = Depends(get_db)
+):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
+
     result = await db.execute(select(Post).filter(Post.id == id))
     post = result.scalars().first()
 
