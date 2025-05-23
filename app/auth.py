@@ -30,20 +30,20 @@ def get_jwt_data(jwt_token: str, token_type: str):
     try:
         data = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except jwt.ExpiredSignatureError:
-        logger.info("Токен истек")
+        logger.warning("Токен истек")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Срок действия токена истек"
         )
     except jwt.DecodeError:
-        logger.info("Некорректный токен")
+        logger.warning("Некорректный токен")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Невалидный токен"
         )
 
     if data.get("type") != token_type:
-        logger.info("Попытка использовать токен неверного типа")
+        logger.warning("Попытка использовать токен неверного типа")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный тип токена"

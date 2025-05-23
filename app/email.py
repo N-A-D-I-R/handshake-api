@@ -6,6 +6,7 @@ from aiosmtplib import SMTP, SMTPException
 
 from .settings import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 env = Environment(loader=FileSystemLoader("templates/emails"))

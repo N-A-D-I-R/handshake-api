@@ -1,3 +1,6 @@
+import logging
+import asyncio
+
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,9 +9,6 @@ from routes.UserRoutes import router as user_router
 from routes.PostsRoutes import router as offers_router
 from routes.ModerationRoutes import router as moderation_router
 from routes.NotificationRoutes import router as notification_router
-
-import logging
-import asyncio
 
 from datetime import datetime, timezone
 
@@ -60,7 +60,7 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass  # Игнорируем ошибку отмены задачи
 
-app = FastAPI(title="Handshake", description="...", openapi_prefix="/api/v1", lifespan=lifespan)
+app = FastAPI(title="GoBarter", description="...", root_path="/api/v1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

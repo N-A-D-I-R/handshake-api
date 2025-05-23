@@ -3,7 +3,7 @@ import random
 import logging
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, Security, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -19,7 +19,7 @@ from .database import get_db
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-bearer_scheme = HTTPBearer()
+bearer_scheme = HTTPBearer(auto_error=False)
 
 # Обязательная проверка авторизации пользователя
 async def get_current_user(
@@ -32,14 +32,14 @@ async def get_current_user(
     user_id = data.get("id")
 
     if not user_id:
-        logger.info("JWT не содержит ID пользователя")
+        logger.warning("JWT не содержит ID пользователя")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный токен")
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalars().first()
 
     if not user:
-        logger.info(f"Пользователь ID {user_id} не найден")
+        logger.warning(f"Пользователь ID {user_id} не найден")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
 
     if not user.is_verified:
@@ -52,14 +52,13 @@ async def get_current_user(
 
 # Необязательная проверка авторизации пользователя
 async def get_current_user_optional(
-    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Security(bearer_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> Optional[User]:
-    auth: Optional[str] = request.headers.get("Authorization")
-    if not auth or not auth.lower().startswith("bearer "):
+    if credentials is None:
         return None
 
-    token = auth[7:]
+    token = credentials.credentials
     try:
         data = get_jwt_data(token, "access")
         user_id = data.get("id")
@@ -89,7 +88,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # Проверка владельца поста
 def verify_post_owner(post: Post, user: User):
     if post.user_id != user.id:
-        logger.info("У пользователя нет прав на редактирование этого поста")
+        logger.warning("У пользователя нет прав на редактирование этого поста")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="У вас нет прав на редактирование этого поста")
     
 # Функция для генерации 6-значного кода

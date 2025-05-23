@@ -22,29 +22,28 @@ async def get_offers(
     db: AsyncSession = Depends(get_db),
     params: Params = Depends(),
 ):
-    if only_my:
-        if not current_user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
+    if only_my and not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
 
     if search:
-        raw_sql = """
+        user_filter = "AND user_id = :user_id" if only_my else ""
+        query_str = f"""
             SELECT id, title, need, offer, description, user_id, status
             FROM posts
             WHERE status = 'approved'
-            {user_filter}
+              {user_filter}
               AND (
                 search_vector @@ plainto_tsquery('russian', :search)
                 OR similarity(title, :search) > 0.2
               )
             ORDER BY ts_rank(search_vector, plainto_tsquery('russian', :search)) DESC,
                      similarity(title, :search) DESC
-        """.format(user_filter="AND user_id = :user_id" if only_my else "")
-
+        """
         params_dict = {"search": search}
         if only_my:
             params_dict["user_id"] = current_user.id
 
-        result = await db.execute(text(raw_sql).bindparams(**params_dict))
+        result = await db.execute(text(query_str).bindparams(**params_dict))
         rows = result.fetchall()
 
         posts = [
