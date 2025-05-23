@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models import Post
 from app.schemas import PostSchema
 
-router = APIRouter(tags=["Offers"])
+router = APIRouter(tags=["Moderation"])
 
 @router.get("/pending/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Открыть пост на модерации")
 async def get_post(id: int, db: AsyncSession = Depends(get_db)):
