@@ -9,7 +9,7 @@ from app.schemas import PostSchema
 
 router = APIRouter(tags=["Offers"])
 
-@router.get("/pending/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Открыть пост")
+@router.get("/pending/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Открыть пост на модерации")
 async def get_post(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post).where(Post.id == id, Post.status == "pending"))
     post = result.scalar_one_or_none()
