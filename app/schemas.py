@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, model_validator
+from pydantic import BaseModel, EmailStr, Field
 from typing import List
 from datetime import datetime
 
@@ -8,13 +8,6 @@ class UserRegister(BaseModel):
     email: EmailStr = Field(..., description="Укажите ваш e-mail", example="")
     name: str = Field(..., min_length=3, max_length=50, description="Ваше имя", example="")
     password: str = Field(..., min_length=8, max_length=50, description="Придумайте пароль", example="")
-    confirm_password: str = Field(..., min_length=8, max_length=50, description="Повторите пароль", example="")
-
-    @model_validator(mode='after')
-    def check_passwords_match(self):
-        if self.password != self.confirm_password:
-            raise ValueError('Пароли не совпадают')
-        return self
     
 class EmailCodeConfirm(BaseModel):
     email: EmailStr = Field(..., description="E-mail", example="")
