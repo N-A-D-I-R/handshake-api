@@ -7,11 +7,12 @@ from sqlalchemy import update
 
 from app.database import get_db
 from app.models import Notification, User
+from app.schemas import MessageResponse
 from app.utils import get_current_user
 
 router = APIRouter(tags=["Notifications"])
 
-@router.post("/{notification_id}/read", status_code=status.HTTP_200_OK, summary="Отметить уведомление как прочитанное")
+@router.post("/{notification_id}/read", response_model=MessageResponse, status_code=status.HTTP_200_OK, summary="Отметить уведомление как прочитанное")
 async def mark_as_read(
     notification_id: int, 
     current_user: Optional[User] = Depends(get_current_user), 

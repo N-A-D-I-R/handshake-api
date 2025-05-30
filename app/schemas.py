@@ -17,9 +17,8 @@ class UserAuth(BaseModel):
     email: EmailStr = Field(..., description="Введите e-mail", example="")
     password: str = Field(..., min_length=8, max_length=50, description="Введите пароль", example="")
 
-class SuperUserAuth(BaseModel):
-    username: str = Field(..., description="Имя суперпользователя", example="")
-    password: str = Field(..., min_length=8, max_length=50, description="Пароль суперпользователя", example="")
+class MessageResponse(BaseModel):
+    message: str
 
 class AuthTokensResponse(BaseModel):
     access_token: str

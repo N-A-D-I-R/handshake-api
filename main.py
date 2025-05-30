@@ -60,7 +60,7 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass  # Игнорируем ошибку отмены задачи
 
-app = FastAPI(title="GoBarter", description="...", root_path="/api/v1", lifespan=lifespan)
+app = FastAPI(title="GoBarter", description=False, root_path="/api/v1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

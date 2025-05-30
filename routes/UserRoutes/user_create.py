@@ -9,14 +9,14 @@ from app.models import User, EmailConfirmation
 from app.email import send_email, render_template
 from app.utils import generate_auth_key, hash_password
 from datetime import datetime, timedelta, timezone
-from app.schemas import UserRegister
+from app.schemas import UserRegister, MessageResponse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Users"])
 
-@router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED, name="Регистрация пользователя")
+@router.post("/register", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, name="Регистрация пользователя")
 async def register_user(
     request: Request, 
     user: UserRegister = Form(...), 

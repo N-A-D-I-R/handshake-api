@@ -7,13 +7,13 @@ from app.database import get_db
 from app.models import User, EmailConfirmation
 from app.utils import create_notification
 from app.email import send_email, render_template
-from app.schemas import EmailCodeConfirm
+from app.schemas import EmailCodeConfirm, MessageResponse
 
 from datetime import datetime, timezone
 
 router = APIRouter(tags=["Users"])
 
-@router.post("/verify", response_model=dict, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
+@router.post("/verify", response_model=MessageResponse, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
 async def verify_user(
     data: EmailCodeConfirm = Form(...), 
     db: AsyncSession = Depends(get_db)
