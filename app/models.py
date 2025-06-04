@@ -67,31 +67,6 @@ class Post(Base):
             f")>"
         )
 
-class RefreshToken(Base):
-    __tablename__ = "refresh_tokens"
-
-    id = Column(Integer, primary_key=True, index=True)
-    token = Column(String, unique=True, nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
-    user_agent = Column(Text)
-    ip_address = Column(String(45))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=False)
-    is_active = Column(Boolean, default=True)
-
-    def __repr__(self):
-        return (
-            f"<RefreshToken("
-            f"id={self.id}, "
-            f"user_id='{self.user_id}', "
-            f"user_agent='{self.user_agent}', "
-            f"ip_address={self.ip_address}, "
-            f"created_at={self.created_at}, "
-            f"expires_at={self.expires_at}, "
-            f"is_active='{self.is_active}'"
-            f")>"
-        )
-
 class EmailConfirmation(Base):
     __tablename__ = "email_confirmations"
 

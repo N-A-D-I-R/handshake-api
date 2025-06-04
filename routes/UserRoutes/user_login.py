@@ -5,13 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models import User, RefreshToken
+from app.models import User
 from app.schemas import UserAuth, AuthTokensResponse
 from app.auth import create_access_token, create_refresh_token
 from app.utils import verify_password, create_notification
 from app.email import send_email, render_template
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -34,21 +34,6 @@ async def login(
         logger.warning(f"Неверный пароль для email: {user_data.email}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
 
-    # создаем refresh токен
-    refresh_token = create_refresh_token(user.id)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
-
-    db_token = RefreshToken(
-        token=refresh_token,
-        user_id=user.id,
-        user_agent=request.headers.get("user-agent"),
-        ip_address=request.client.host,
-        expires_at=expires_at,
-    )
-
-    db.add(db_token)
-    await db.commit()
-
     # Дата/время + IP + User-Agent
     ip = request.client.host
     ua = request.headers.get("user-agent", "Неизвестно")
@@ -68,5 +53,5 @@ async def login(
 
     return AuthTokensResponse(
         access_token=create_access_token(user.id),
-        refresh_token=refresh_token,
+        refresh_token=create_refresh_token(user.id),
     )

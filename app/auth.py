@@ -6,7 +6,7 @@ import redis.asyncio as redis
 from fastapi import HTTPException, Request, status
 from datetime import datetime, timedelta, timezone
 
-from .settings import JWT_SECRET, JWT_ALGORITHM, REDIS_URL
+from .settings import JWT_SECRET, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE, REFRESH_TOKEN_EXPIRE, REDIS_URL
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +20,10 @@ def create_token(user_id: int, token_type: str, lifetime: timedelta):
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 def create_access_token(user_id: int):
-    return create_token(user_id, token_type="access", lifetime=timedelta(minutes=15))
+    return create_token(user_id, token_type="access", lifetime=timedelta(minutes=ACCESS_TOKEN_EXPIRE))
 
 def create_refresh_token(user_id: int):
-    return create_token(user_id, token_type="refresh", lifetime=timedelta(days=7))
+    return create_token(user_id, token_type="refresh", lifetime=timedelta(days=REFRESH_TOKEN_EXPIRE))
 
 def get_jwt_data(jwt_token: str, token_type: str):
     try:

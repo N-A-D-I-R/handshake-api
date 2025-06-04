@@ -20,6 +20,13 @@ SMTP_PORT = os.getenv("SMTP_PORT")
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
+# Token expiration times
+ACCESS_TOKEN_EXPIRE = int(os.getenv("ACCESS_TOKEN_EXPIRATION"))
+REFRESH_TOKEN_EXPIRE = int(os.getenv("REFRESH_TOKEN_EXPIRATION"))
+
+# Verification expiration time
+VERIFICATION_EXPIRE = int(os.getenv("EMAIL_VERIFICATION_EXPIRATION"))
+
 # Logging configuration
 SQL_LOGGING = os.getenv("SQL_LOGGING")
 DEBUG = os.getenv("DEBUG")

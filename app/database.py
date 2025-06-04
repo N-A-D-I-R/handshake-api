@@ -1,5 +1,3 @@
-import os
-
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -13,7 +11,15 @@ def str_to_bool(value: str) -> bool:
 switch_sql_logging = str_to_bool(SQL_LOGGING)
 
 # Создание асинхронного движка PostgreSQL
-engine = create_async_engine(POSTGRESQL_DATABASE_URL, echo=switch_sql_logging)
+engine = create_async_engine(
+    POSTGRESQL_DATABASE_URL, 
+    echo=switch_sql_logging,
+    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=20,
+    pool_timeout=30,
+    pool_recycle=1800,
+)
 
 # Создание фабрики сессий
 SessionLocal = async_sessionmaker(

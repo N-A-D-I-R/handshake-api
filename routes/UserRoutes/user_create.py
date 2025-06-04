@@ -8,8 +8,10 @@ from app.database import get_db
 from app.models import User, EmailConfirmation
 from app.email import send_email, render_template
 from app.utils import generate_auth_key, hash_password
-from datetime import datetime, timedelta, timezone
 from app.schemas import UserRegister, MessageResponse
+from app.settings import VERIFICATION_EXPIRE
+
+from datetime import datetime, timedelta, timezone
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -63,12 +65,12 @@ async def register_user(
 
     if confirmation:
         confirmation.code = code
-        confirmation.expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+        confirmation.expires_at = datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_EXPIRE)
     else:
         confirmation = EmailConfirmation(
             email=user_email,
             code=code,
-            expires_at=datetime.now(timezone.utc) + timedelta(minutes=10)
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_EXPIRE)
         )
         db.add(confirmation)
 

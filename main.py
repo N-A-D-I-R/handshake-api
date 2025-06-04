@@ -10,11 +10,11 @@ from routes.PostsRoutes import router as offers_router
 from routes.ModerationRoutes import router as moderation_router
 from routes.NotificationRoutes import router as notification_router
 
-from datetime import datetime, timezone
-
 from sqlalchemy import delete
 
-from app.models import RefreshToken, User
+from datetime import datetime, timezone
+
+from app.models import User, EmailConfirmation
 from app.database import get_db, init_db
 
 from contextlib import asynccontextmanager
@@ -36,11 +36,11 @@ async def lifespan(app: FastAPI):
             async for db in get_db():
 
                 await db.execute(
-                    delete(RefreshToken).where(RefreshToken.expires_at < datetime.now(timezone.utc))
+                    delete(User).where(User.is_verified == False)
                 )
 
                 await db.execute(
-                    delete(User).where(User.is_verified == False)
+                    delete(EmailConfirmation).where(EmailConfirmation.expires_at < datetime.now(timezone.utc))
                 )
 
                 await db.commit()
