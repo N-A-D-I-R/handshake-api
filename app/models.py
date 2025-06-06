@@ -14,8 +14,8 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
 
     username = Column(String(32), unique=True, nullable=False)
-    first_name = Column(String(100), nullable=False)
-    last_name = Column(String(100), nullable=False)
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
     avatar_url = Column(String(500), nullable=True)
 
     password = Column(String(255), nullable=False)

@@ -44,8 +44,8 @@ def upgrade() -> None:
     """)
 
     op.alter_column('users', 'username', nullable=False)
-    op.alter_column('users', 'first_name', nullable=False)
-    op.alter_column('users', 'last_name', nullable=False)
+    op.alter_column('users', 'first_name', nullable=True)
+    op.alter_column('users', 'last_name', nullable=True)
 
     op.create_unique_constraint(None, 'users', ['email'])
     op.create_unique_constraint(None, 'users', ['username'])
