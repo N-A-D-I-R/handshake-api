@@ -13,7 +13,7 @@ from app.utils import get_current_user
 router = APIRouter()
 
 @router.get(
-    "/users_profile_edit/{request_id}",
+    "/users-profile-edit/{request_id}",
     response_model=ProfileChangeOut,
     status_code=status.HTTP_200_OK,
     name="Детали запроса на изменение профиля"
