@@ -32,7 +32,7 @@ async def get_user(
     user_data.pop("_sa_instance_state", None)
 
     return UserMe(
-        **user.__dict__,
+        **user_data,
         is_moderator=user.is_moderator,
         posts=user.posts
     )
