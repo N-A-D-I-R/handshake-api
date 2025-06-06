@@ -48,7 +48,7 @@ async def verify_user(
     await db.commit()
 
     # Отправляем уведомление на почту
-    html = render_template("account_verified.html", name=user.name)
+    html = render_template("account_verified.html")
     await send_email(
         to=user.email,
         subject="Ваш аккаунт подтверждён!",

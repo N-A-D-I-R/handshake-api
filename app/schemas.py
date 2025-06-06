@@ -9,7 +9,7 @@ UsernameStr = Annotated[
     StringConstraints(
         min_length=3,
         max_length=32,
-        pattern=r"^[a-zA-Z0-9_]+$"
+        pattern=r"^[a-z0-9_]+$"
     )
 ]
 
