@@ -27,9 +27,9 @@ async def get_user(
         .where(User.id == current_user.id, User.is_verified == True)
     )
     user = result.scalar_one_or_none()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+    user_data = user.__dict__.copy()
+    user_data.pop("is_moderator", None)
+    user_data.pop("_sa_instance_state", None)
 
     return UserMe(
         **user.__dict__,
