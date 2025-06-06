@@ -1,8 +1,8 @@
-from pydantic import BaseModel, EmailStr, StringConstraints, Field
-from typing import List, Optional, Annotated
 from datetime import datetime
+from typing import List, Optional, Annotated
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, StringConstraints
+from pydantic import Field, PrivateAttr, computed_field
 
 UsernameStr = Annotated[
     str,
@@ -88,12 +88,25 @@ class FullUserProfile(UserProfile):
     }
 
 class UserMe(UserProfile):
-    role: bool
     posts: List[PostSchema] = []
-    
+
+    # приватный флаг, не попадает в JSON
+    _is_moderator: bool = PrivateAttr()
+
     model_config = {
         "from_attributes": True
     }
+
+    def __init__(self, **data):
+        # Вытаскиваем is_moderator из входных данных и убираем его из kwargs
+        is_moderator = data.pop("is_moderator", False)
+        super().__init__(**data)
+        self._is_moderator = is_moderator
+
+    @computed_field
+    @property
+    def role(self) -> str:
+        return "moderator" if self._is_moderator else "user"
     
 class ProfileChangeCreate(BaseModel):
     new_username: str | None = Field(None, min_length=3, max_length=32, description="Username", example="")

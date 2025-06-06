@@ -15,16 +15,21 @@ router = APIRouter()
 
 @router.get("/me", response_model=UserMe, status_code=status.HTTP_200_OK, name="Профиль пользователя")
 async def get_user(
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
-
     result = await db.execute(
-        select(User).options(
-            selectinload(User.posts)).where(User.id == current_user.id, User.is_verified == True)
-        )
+        select(User)
+        .options(selectinload(User.posts))
+        .where(User.id == current_user.id, User.is_verified == True)
+    )
     user = result.scalar_one_or_none()
-    
-    return user
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+
+    return UserMe(
+        **user.__dict__,
+        is_moderator=user.is_moderator,
+        posts=user.posts
+    )
