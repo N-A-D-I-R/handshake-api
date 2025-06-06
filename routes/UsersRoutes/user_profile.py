@@ -10,7 +10,7 @@ from app.schemas import FullUserProfile
 
 router = APIRouter()
 
-@router.get("/{id}", response_model=FullUserProfile, status_code=status.HTTP_200_OK, name="Профиль пользователя")
+@router.get("/{id}", response_model=FullUserProfile, status_code=status.HTTP_200_OK, name="Профиль другого пользователя")
 async def get_user(
     id: int,
     db: AsyncSession = Depends(get_db)

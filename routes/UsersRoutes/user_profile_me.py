@@ -15,9 +15,12 @@ router = APIRouter()
 
 @router.get("/me", response_model=UserMe, status_code=status.HTTP_200_OK, name="Профиль пользователя")
 async def get_user(
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Необходимо авторизоваться")
+
     result = await db.execute(
         select(User)
         .options(selectinload(User.posts))
