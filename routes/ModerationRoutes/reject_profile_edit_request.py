@@ -13,7 +13,7 @@ from app.utils import get_current_user, create_notification
 router = APIRouter()
 
 @router.post(
-        "/users_profile_edit/{request_id}/reject", 
+        "/users-profile-edit/{request_id}/reject", 
         response_model=MessageResponse,
         status_code=status.HTTP_200_OK, 
         name="Отклонить запрос на редактирование профиля"

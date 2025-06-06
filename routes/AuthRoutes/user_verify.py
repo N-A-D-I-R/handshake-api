@@ -5,15 +5,16 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models import User, EmailConfirmation
+from app.auth import create_access_token, create_refresh_token
 from app.utils import create_notification
 from app.email import send_email, render_template
-from app.schemas import EmailCodeConfirm, MessageResponse
+from app.schemas import EmailCodeConfirm, AuthTokensResponse
 
 from datetime import datetime, timezone
 
 router = APIRouter()
 
-@router.post("/verify", response_model=MessageResponse, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
+@router.post("/verify", response_model=AuthTokensResponse, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
 async def verify_user(
     data: EmailCodeConfirm = Form(...), 
     db: AsyncSession = Depends(get_db)
@@ -59,4 +60,7 @@ async def verify_user(
     # Создаём уведомление в системе
     await create_notification(user.id, "Аккаунт подтверждён", "Ваш аккаунт успешно подтверждён!", db)
 
-    return {"message": "Пользователь подтверждён и зарегистрирован"}
+    return AuthTokensResponse(
+        access_token=create_access_token(user.id),
+        refresh_token=create_refresh_token(user.id),
+    )

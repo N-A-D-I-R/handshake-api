@@ -15,7 +15,10 @@ async def get_user(
     id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(select(User).options(selectinload(User.posts)).where(User.id == id, User.is_verified == True))
+    result = await db.execute(
+        select(User).options(
+            selectinload(User.posts)).where(User.id == id, User.is_verified == True)
+        )
     user = result.scalar_one_or_none()
 
     if user is None:

@@ -8,13 +8,12 @@ from sqlalchemy.future import select
 from app.database import get_db
 from app.models import ProfileChangeRequest, User
 from app.schemas import MessageResponse
-from app.email import send_email, render_template
 from app.utils import get_current_user, create_notification
 
 router = APIRouter()
 
 @router.post(
-        "/users_profile_edit/{request_id}/approve", 
+        "/users-profile-edit/{request_id}/approve", 
         response_model=MessageResponse,
         status_code=status.HTTP_200_OK, 
         name="Одобрение запроса на редактирование профиля"

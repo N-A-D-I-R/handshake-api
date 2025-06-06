@@ -13,7 +13,7 @@ from app.utils import get_current_user
 
 router = APIRouter()
 
-@router.post("/profile/edit", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, name="Изменение профиля")
+@router.patch("/profile/edit", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, name="Изменение профиля")
 async def profile_change(
     data: ProfileChangeCreate = Form(...),
     db: AsyncSession = Depends(get_db),

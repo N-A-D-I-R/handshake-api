@@ -76,11 +76,19 @@ class PostSchema(PostBase):
 class UserProfile(BaseModel):
     id: int
     avatar_url: Optional[str] = None
-    username: str
-    first_name: str
-    last_name: str
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 class FullUserProfile(UserProfile):
+    posts: List[PostSchema] = []
+    
+    model_config = {
+        "from_attributes": True
+    }
+
+class UserMe(UserProfile):
+    role: bool
     posts: List[PostSchema] = []
     
     model_config = {
