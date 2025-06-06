@@ -29,6 +29,7 @@ async def get_user(
     user = result.scalar_one_or_none()
     user_data = user.__dict__.copy()
     user_data.pop("is_moderator", None)
+    user_data.pop("posts", None)
     user_data.pop("_sa_instance_state", None)
 
     return UserMe(
