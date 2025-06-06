@@ -7,7 +7,7 @@ from app.schemas import MessageResponse
 from app.utils import get_current_user
 from app.auth import invalidate_access_token, get_token_from_request
 
-router = APIRouter(tags=["Users"])
+router = APIRouter()
 
 @router.post("/logout", response_model=MessageResponse, status_code=status.HTTP_200_OK, name="Выход пользователя")
 async def logout_user(

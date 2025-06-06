@@ -1,0 +1,18 @@
+<html>
+<body style="font-family: sans-serif; color: #333;">
+  <h2>✅ Изменения профиля одобрены!</h2>
+  <p>Ваши новые данные профиля были успешно проверены и одобрены модератором:</p>
+  <ul>
+    {% if new_first_name %}
+      <li><strong>Имя:</strong> {{ new_first_name }}</li>
+    {% endif %}
+    {% if new_last_name %}
+      <li><strong>Фамилия:</strong> {{ new_last_name }}</li>
+    {% endif %}
+    {% if new_username %}
+      <li><strong>Username:</strong> {{ new_username }}</li>
+    {% endif %}
+  </ul>
+  <p>Спасибо, что обновили информацию!</p>
+</body>
+</html>

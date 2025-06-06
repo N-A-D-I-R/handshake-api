@@ -10,7 +10,7 @@ from app.auth import create_access_token
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["Users"])
+router = APIRouter()
 
 @router.post("/refresh", response_model=RefreshTokenResponse, status_code=status.HTTP_200_OK, name="Обновление токена пользователя")
 async def refresh(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):

@@ -10,7 +10,7 @@ from app.models import User, Post
 from app.schemas import PostSchema
 from app.utils import get_current_user, verify_post_owner, create_notification
 
-router = APIRouter(tags=["Offers"])
+router = APIRouter()
 
 @router.delete("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Удалить пост")
 async def delete_post(

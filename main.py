@@ -5,16 +5,18 @@ from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes.UserRoutes import router as user_router
+from routes.AuthRoutes import router as auth_router
+from routes.UsersRoutes import router as users_router
 from routes.PostsRoutes import router as offers_router
+from routes.SettingsRoutes import router as settings_router
 from routes.ModerationRoutes import router as moderation_router
 from routes.NotificationRoutes import router as notification_router
 
 from sqlalchemy import delete
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from app.models import User, EmailConfirmation
+from app.models import User, EmailConfirmation, Notification
 from app.database import get_db, init_db
 
 from contextlib import asynccontextmanager
@@ -34,17 +36,28 @@ async def lifespan(app: FastAPI):
     async def cleanup():
         while True:
             async for db in get_db():
+                now = datetime.now(timezone.utc)
+                month_ago = now - timedelta(days=30)
 
+                # Удаляем неподтвержденных пользователей
                 await db.execute(
                     delete(User).where(User.is_verified == False)
                 )
 
+                # Удаляем просроченные подтверждения email
                 await db.execute(
-                    delete(EmailConfirmation).where(EmailConfirmation.expires_at < datetime.now(timezone.utc))
+                    delete(EmailConfirmation).where(EmailConfirmation.expires_at < now)
+                )
+
+                # Удаляем уведомления старше месяца
+                await db.execute(
+                    delete(Notification).where(Notification.created_at < month_ago)
                 )
 
                 await db.commit()
-            await asyncio.sleep(1800)  # повтор через час
+                logger.info("🧹 Очистка завершена")
+
+            await asyncio.sleep(1800)
 
     # Запуск фонов задачи
     cleanup_task = asyncio.create_task(cleanup())
@@ -71,9 +84,11 @@ app.add_middleware(
 )
 
 # Подключение роутеров
-app.include_router(user_router)
+app.include_router(auth_router)
+app.include_router(users_router)
 app.include_router(offers_router)
-app.include_router(moderation_router)
 app.include_router(notification_router)
+app.include_router(settings_router)
+app.include_router(moderation_router)
 
 add_pagination(app)

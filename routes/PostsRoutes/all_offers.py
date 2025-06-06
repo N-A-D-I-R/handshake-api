@@ -12,7 +12,7 @@ from app.models import Post, User
 from app.schemas import PostSchema
 from app.utils import get_current_user
 
-router = APIRouter(tags=["Offers"])
+router = APIRouter()
 
 @router.get("/", response_model=Page[PostSchema], status_code=status.HTTP_200_OK, name="Все посты")
 async def get_offers(

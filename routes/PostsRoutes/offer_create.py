@@ -6,14 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models import User, Post
-from app.schemas import PostCreate, MessageResponse
+from app.schemas import PostBase, MessageResponse
 from app.utils import get_current_user, create_notification
 
-router = APIRouter(tags=["Offers"])
+router = APIRouter()
 
-@router.post("/new", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, name="Создать пост")
+@router.post("/create", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, name="Создать пост")
 async def create_post(
-    payload: PostCreate = Form(...), 
+    payload: PostBase = Form(...), 
     current_user: Optional[User] = Depends(get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):

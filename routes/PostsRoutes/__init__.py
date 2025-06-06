@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from . import all_offers, get_offer, offer_create, offer_edit, offer_delete
 
-router = APIRouter(prefix="/offers")
+router = APIRouter(prefix="/offers", tags=["Offers"])
 router.include_router(all_offers.router)
 router.include_router(get_offer.router)
 router.include_router(offer_create.router)

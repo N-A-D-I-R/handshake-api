@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["Users"])
+router = APIRouter()
 
 @router.post("/login", response_model=AuthTokensResponse, status_code=status.HTTP_200_OK, name="Вход пользователя")
 async def login(

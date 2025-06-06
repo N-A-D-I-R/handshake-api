@@ -10,7 +10,7 @@ from app.models import Notification, User
 from app.schemas import NotificationSchema
 from app.utils import get_current_user
 
-router = APIRouter(tags=["Notifications"])
+router = APIRouter()
 
 @router.get("/all", response_model=list[NotificationSchema], status_code=status.HTTP_200_OK, summary="Получить все уведомления")
 async def get_notifications(

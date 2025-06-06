@@ -10,9 +10,9 @@ from app.models import User, Post
 from app.schemas import MessageResponse
 from app.utils import get_current_user, create_notification
 
-router = APIRouter(tags=["Moderation"])
+router = APIRouter()
 
-@router.post("/approve/{post_id}", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, summary="Одобрить пост")
+@router.post("/posts/{post_id}/approve", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, summary="Одобрить пост")
 async def approve_post(
     post_id: int, 
     db: AsyncSession = Depends(get_db), 

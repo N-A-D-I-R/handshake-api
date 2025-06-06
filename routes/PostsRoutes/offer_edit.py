@@ -7,15 +7,15 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models import User, Post
-from app.schemas import PostSchema, PostCreate
+from app.schemas import PostSchema, PostBase
 from app.utils import get_current_user, verify_post_owner, create_notification
 
-router = APIRouter(tags=["Offers"])
+router = APIRouter()
 
 @router.put("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Редактировать пост")
 async def edit_post(
     id: int, 
-    payload: PostCreate = Form(...), 
+    payload: PostBase = Form(...), 
     current_user: Optional[User] = Depends(get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):

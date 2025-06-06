@@ -11,7 +11,7 @@ from app.schemas import EmailCodeConfirm, MessageResponse
 
 from datetime import datetime, timezone
 
-router = APIRouter(tags=["Users"])
+router = APIRouter()
 
 @router.post("/verify", response_model=MessageResponse, status_code=status.HTTP_202_ACCEPTED, name="Подтверждение пользователя")
 async def verify_user(

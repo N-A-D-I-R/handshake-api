@@ -12,9 +12,9 @@ from app.models import Post, User
 from app.utils import get_current_user
 from app.schemas import PostSchema
 
-router = APIRouter(tags=["Moderation"])
+router = APIRouter()
 
-@router.get("/pending", response_model=Page[PostSchema], status_code=status.HTTP_200_OK, summary="Получить все посты на модерации")
+@router.get("/posts/", response_model=Page[PostSchema], status_code=status.HTTP_200_OK, summary="Получить все посты на модерации")
 async def get_pending_offers(
     search: Optional[str] = Query(default=None, description="Найти пост"),
     db: AsyncSession = Depends(get_db),

@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models import Post
 from app.schemas import PostSchema
 
-router = APIRouter(tags=["Offers"])
+router = APIRouter()
 
 @router.get("/{id}", response_model=PostSchema, status_code=status.HTTP_200_OK, name="Открыть пост")
 async def get_post(

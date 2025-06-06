@@ -10,9 +10,9 @@ from app.models import Notification, User
 from app.schemas import MessageResponse
 from app.utils import get_current_user
 
-router = APIRouter(tags=["Notifications"])
+router = APIRouter()
 
-@router.delete("/{notification_id}", response_model=MessageResponse, status_code=status.HTTP_200_OK, summary="Удалить уведомление")
+@router.delete("/delete/{notification_id}", response_model=MessageResponse, status_code=status.HTTP_200_OK, summary="Удалить уведомление")
 async def delete_notification(
     notification_id: int, 
     current_user: Optional[User] = Depends(get_current_user), 

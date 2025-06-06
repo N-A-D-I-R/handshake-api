@@ -16,7 +16,7 @@ from datetime import datetime, timedelta, timezone
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["Users"])
+router = APIRouter()
 
 @router.post("/register", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, name="Регистрация пользователя")
 async def register_user(
@@ -24,9 +24,28 @@ async def register_user(
     user: UserRegister = Form(...), 
     db: AsyncSession = Depends(get_db)
 ):
-    user_email = user.email.strip().lower()
+    # Проверка на существующий username
+    existing_username_query = await db.execute(
+        select(User).filter(User.username == user.username.strip())
+    )
+    existing_username = existing_username_query.scalars().first()
 
-    existing_user = await db.execute(select(User).filter(User.email == user_email))
+    if existing_username:
+        if existing_username.is_verified:
+            logger.info("Username уже занят")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username уже занят"
+            )
+        elif existing and existing_username.id != existing.id:
+            # Если другой неподтверждённый пользователь с тем же username
+            logger.info("Username занят другим неподтверждённым пользователем")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username уже занят"
+            )
+
+    existing_user = await db.execute(select(User).filter(User.email == user.email.strip().lower()))
     existing = existing_user.scalars().first()
 
     if existing:
@@ -37,14 +56,14 @@ async def register_user(
             logger.info("Повторная регистрация")
 
             # Повторная регистрация — обновляем данные
-            existing.name = user.name
+            existing.username = user.username
             existing.password = hash_password(user.password)
             existing.ip_address = request.client.host
             db_user = existing
     else:
         db_user = User(
-            email=user_email,
-            name=user.name,
+            email=user.email.strip().lower(),
+            username=user.username,
             password=hash_password(user.password),
             ip_address=request.client.host,
             is_verified=False,
@@ -59,7 +78,7 @@ async def register_user(
 
     # Ищем или создаём запись подтверждения
     logger.info("Ищем или создаём запись подтверждения")
-    conf_stmt = select(EmailConfirmation).filter(EmailConfirmation.email == user_email)
+    conf_stmt = select(EmailConfirmation).filter(EmailConfirmation.email == user.email.strip().lower())
     result = await db.execute(conf_stmt)
     confirmation = result.scalars().first()
 
@@ -68,7 +87,7 @@ async def register_user(
         confirmation.expires_at = datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_EXPIRE)
     else:
         confirmation = EmailConfirmation(
-            email=user_email,
+            email=user.email.strip().lower(),
             code=code,
             expires_at=datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_EXPIRE)
         )
@@ -83,7 +102,7 @@ async def register_user(
 
     logger.info("Отправляем сообщение")
     await send_email(
-        to=user_email,
+        to=user.email,
         subject="Код подтверждения",
         body=html_body,
         html=True
