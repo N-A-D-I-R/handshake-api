@@ -88,10 +88,10 @@ class FullUserProfile(UserProfile):
     }
     
 class ProfileChangeCreate(BaseModel):
-    new_username: str | None = None
-    new_first_name: str | None = None
-    new_last_name: str | None = None
-    new_avatar_url: str | None = None
+    new_username: str | None = Field(None, min_length=3, max_length=32, description="Username", example="")
+    new_first_name: str | None = Field(None, min_length=3, max_length=50, description="Имя", example="")
+    new_last_name: str | None = Field(None, min_length=3, max_length=50, description="Фамилия", example="")
+    new_avatar_url: str | None = Field(None, min_length=3, max_length=500, description="Фото", example="")
 
 class ProfileChangeOut(BaseModel):
     id: int
