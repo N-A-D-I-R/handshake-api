@@ -1,14 +1,20 @@
 import logging
+from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from aiosmtplib import SMTP, SMTPException
 
 from .settings import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
 
 logger = logging.getLogger(__name__)
 
-env = Environment(loader=FileSystemLoader("templates/emails"))
+template_dir = Path(__file__).parent.parent / "templates" / "emails"
+
+env = Environment(
+    loader=FileSystemLoader(template_dir),
+    autoescape=select_autoescape(["html", "xml"])
+)
 
 def render_template(template_name: str, **context) -> str:
     template = env.get_template(template_name)

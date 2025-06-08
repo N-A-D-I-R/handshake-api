@@ -8,7 +8,7 @@ from sqlalchemy.future import select
 from app.database import get_db
 from app.models import ProfileChangeRequest, User
 from app.schemas import ProfileChangeOut
-from app.utils import get_current_user
+from app.dependencies import get_current_user
 
 router = APIRouter()
 

@@ -1,66 +1,8 @@
 import string
 import random
-import logging
-
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi import Depends, Security, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from passlib.hash import bcrypt
-
-from typing import Optional
-
-from .models import User, Post
-from .auth import get_jwt_data, is_token_blacklisted
-from .database import get_db
-
-logger = logging.getLogger(__name__)
-
-bearer_scheme = HTTPBearer(auto_error=False)
-
-# Проверка авторизации пользователя
-async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Security(bearer_scheme),
-    db: AsyncSession = Depends(get_db),
-) -> Optional[User]:
-    if credentials is None:
-        return None
-
-    token = credentials.credentials
-    try:
-        data = get_jwt_data(token, "access")
-        user_id = data.get("id")
-        if not user_id:
-            return None
-
-        result = await db.execute(select(User).where(User.id == user_id))
-        user = result.scalars().first()
-        if not user or not user.is_verified:
-            return None
-
-        if await is_token_blacklisted(token):
-            return None
-
-        return user
-    except Exception:
-        return None
-
-# Хеширование пароля перед сохранением в БД
-def hash_password(password: str) -> str:
-    return bcrypt.hash(password)
-
-# Проверка введённого пароля против хешированного
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.verify(plain_password, hashed_password)
-
-# Проверка владельца поста
-def verify_post_owner(post: Post, user: User):
-    if post.user_id != user.id:
-        logger.warning("У пользователя нет прав на редактирование этого поста")
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="У вас нет прав на редактирование этого поста")
-    
 # Функция для генерации 6-значного кода
 def generate_auth_key() -> str:
     return ''.join(random.choices(string.digits, k=6))

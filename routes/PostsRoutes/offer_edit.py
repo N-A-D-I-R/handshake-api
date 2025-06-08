@@ -8,7 +8,8 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models import User, Post
 from app.schemas import PostSchema, PostBase
-from app.utils import get_current_user, verify_post_owner, create_notification
+from app.dependencies import get_current_user, verify_post_owner
+from app.utils import create_notification
 
 router = APIRouter()
 

@@ -1,6 +1,9 @@
-<html>
-<body style="font-family: sans-serif; color: #333;">
-  <h2>✅ Изменения профиля одобрены!</h2>
+{% extends "base_email.html" %}
+
+{% block title %}Изменения профиля одобрены{% endblock %}
+
+{% block content %}
+  <h2 class="success">✅ Изменения профиля одобрены!</h2>
   <p>Ваши новые данные профиля были успешно проверены и одобрены модератором:</p>
   <ul>
     {% if new_first_name %}
@@ -14,5 +17,4 @@
     {% endif %}
   </ul>
   <p>Спасибо, что обновили информацию!</p>
-</body>
-</html>
+{% endblock %}

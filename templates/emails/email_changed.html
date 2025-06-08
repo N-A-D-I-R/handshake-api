@@ -1,0 +1,15 @@
+{% extends "base_email.html" %}
+
+{% block title %}Email успешно изменён{% endblock %}
+
+{% block content %}
+  <h2 class="success">Email обновлён</h2>
+
+  <p>
+    Ваш адрес электронной почты был успешно изменён на <strong>{{ new_email }}</strong>.
+  </p>
+
+  <p>
+    Если вы не запрашивали изменение почты, пожалуйста, немедленно свяжитесь с нашей службой поддержки.
+  </p>
+{% endblock %}

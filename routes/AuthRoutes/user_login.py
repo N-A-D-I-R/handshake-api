@@ -7,8 +7,9 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models import User
 from app.schemas import UserAuth, AuthTokensResponse
-from app.auth import create_access_token, create_refresh_token
-from app.utils import verify_password, create_notification
+from app.token import create_access_token, create_refresh_token
+from app.security import verify_password
+from app.utils import create_notification
 from app.email import send_email, render_template
 
 from datetime import datetime, timezone

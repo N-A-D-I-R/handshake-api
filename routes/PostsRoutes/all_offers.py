@@ -10,7 +10,7 @@ from typing import Optional
 from app.database import get_db
 from app.models import Post, User
 from app.schemas import PostSchema
-from app.utils import get_current_user
+from app.dependencies import get_current_user
 
 router = APIRouter()
 

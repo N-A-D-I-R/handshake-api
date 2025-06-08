@@ -1,8 +1,14 @@
+from enum import Enum
 from datetime import datetime
 from typing import List, Optional, Annotated
 
-from pydantic import BaseModel, EmailStr, StringConstraints
 from pydantic import Field, PrivateAttr, computed_field
+from pydantic import BaseModel, EmailStr, StringConstraints
+
+class ConfirmationTarget(str, Enum):
+    rescue = "rescue"
+    verification = "verification"
+    change_email = "change_email"
 
 UsernameStr = Annotated[
     str,
@@ -22,31 +28,13 @@ PasswordStr = Annotated[
 ]
 
 class UserRegister(BaseModel):
-    email: EmailStr = Field(
-        ..., 
-        description="Укажите ваш e-mail", 
-        example=""
-    )
-
-    username: UsernameStr = Field(
-        ..., 
-        description="Придумайте уникальное имя аккаунта", 
-        example=""
-    )
-
-    password: PasswordStr = Field(
-        ..., 
-        description="Придумайте пароль (от 8 до 50 символов)", 
-        example=""
-    )
+    email: EmailStr = Field(..., description="Укажите ваш e-mail")
+    username: UsernameStr = Field(..., description="Придумайте уникальное имя аккаунта")
+    password: PasswordStr = Field(..., description="Придумайте пароль (от 8 до 50 символов)")
     
-class EmailCodeConfirm(BaseModel):
-    email: EmailStr = Field(..., description="E-mail", example="")
-    code: str = Field(..., min_length=6, max_length=6, description="Введите код подтверждения", example="")
-
 class UserAuth(BaseModel):
-    email: EmailStr = Field(..., description="Введите e-mail", example="")
-    password: str = Field(..., min_length=8, max_length=50, description="Введите пароль", example="")
+    email: EmailStr = Field(..., description="Введите e-mail")
+    password: str = Field(..., min_length=8, max_length=50, description="Введите пароль")
 
 class MessageResponse(BaseModel):
     message: str
@@ -59,11 +47,11 @@ class RefreshTokenResponse(BaseModel):
     access_token: str
 
 class PostBase(BaseModel):
-    avatar_url: str | None = Field(None, min_length=3, max_length=500, description="Фото поста", example="")
-    title: str = Field(..., min_length=3, max_length=50, description="Заголовок поста", example="")
-    need: str = Field(..., min_length=3, max_length=100, description="Что нужно", example="")
-    offer: str = Field(..., min_length=3, max_length=100, description="Что предлагаете", example="")
-    description: str = Field(..., min_length=3, max_length=5000, description="Дополнительное описание", example="")
+    avatar_url: str | None = Field(None, min_length=3, max_length=500, description="Фото поста")
+    title: str = Field(..., min_length=3, max_length=50, description="Заголовок поста")
+    need: str = Field(..., min_length=3, max_length=100, description="Что нужно")
+    offer: str = Field(..., min_length=3, max_length=100, description="Что предлагаете")
+    description: str = Field(..., min_length=3, max_length=5000, description="Дополнительное описание")
 
 class PostSchema(PostBase):
     id: int
@@ -109,10 +97,10 @@ class UserMe(UserProfile):
         return "moderator" if self._is_moderator else "user"
     
 class ProfileChangeCreate(BaseModel):
-    new_username: str | None = Field(None, min_length=3, max_length=32, description="Username", example="")
-    new_first_name: str | None = Field(None, min_length=3, max_length=50, description="Имя", example="")
-    new_last_name: str | None = Field(None, min_length=3, max_length=50, description="Фамилия", example="")
-    new_avatar_url: str | None = Field(None, min_length=3, max_length=500, description="Фото", example="")
+    new_username: str | None = Field(None, min_length=3, max_length=32, description="Username")
+    new_first_name: str | None = Field(None, min_length=3, max_length=50, description="Имя")
+    new_last_name: str | None = Field(None, min_length=3, max_length=50, description="Фамилия")
+    new_avatar_url: str | None = Field(None, min_length=3, max_length=500, description="Фото")
 
 class ProfileChangeOut(BaseModel):
     id: int

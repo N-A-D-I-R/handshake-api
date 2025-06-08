@@ -1,8 +1,10 @@
-<html>
-<body style="font-family: sans-serif;">
+{% extends "base_email.html" %}
+
+{% block title %}Код подтверждения{% endblock %}
+
+{% block content %}
   <h2>🔐 Код подтверждения</h2>
-  <p>Ваш код для подтверждения регистрации:</p>
-  <h3 style="color: #2c3e50;">{{ code }}</h3>
+  <p>Ваш код для подтверждения действия:</p>
+  <p class="code">{{ code }}</p>
   <p>Он действителен в течение 10 минут.</p>
-</body>
-</html>
+{% endblock %}

@@ -9,7 +9,7 @@ from sqlalchemy.future import select
 from app.database import get_db
 from app.models import User
 from app.schemas import UserMe
-from app.utils import get_current_user
+from app.dependencies import get_current_user
 
 router = APIRouter()
 

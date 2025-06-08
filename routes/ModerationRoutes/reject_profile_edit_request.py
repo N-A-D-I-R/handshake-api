@@ -8,7 +8,8 @@ from sqlalchemy.future import select
 from app.database import get_db
 from app.models import ProfileChangeRequest, User
 from app.schemas import MessageResponse
-from app.utils import get_current_user, create_notification
+from app.dependencies import get_current_user
+from app.utils import create_notification
 
 router = APIRouter()
 

@@ -5,15 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models import User, EmailConfirmation
+from app.redis import add_verification_code
 from app.email import send_email, render_template
-from app.utils import generate_auth_key, hash_password
+from app.security import hash_password
+from app.utils import generate_auth_key
+from app.models import User
 from app.schemas import UserRegister, MessageResponse
-from app.settings import VERIFICATION_EXPIRE
 
-from datetime import datetime, timedelta, timezone
-
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -24,88 +22,59 @@ async def register_user(
     user: UserRegister = Form(...), 
     db: AsyncSession = Depends(get_db)
 ):
-    # Проверка на существующий username
-    existing_username_query = await db.execute(
-        select(User).filter(User.username == user.username.strip())
-    )
+    # Проверка на существующий username и email
+    existing_username_query = await db.execute(select(User).filter(User.username == user.username.strip().lower()))
     existing_username = existing_username_query.scalars().first()
-
     if existing_username:
-        if existing_username.is_verified:
-            logger.info("Username уже занят")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Username уже занят"
-            )
-        elif existing and existing_username.id != existing.id:
-            # Если другой неподтверждённый пользователь с тем же username
-            logger.info("Username занят другим неподтверждённым пользователем")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Username уже занят"
-            )
-
-    existing_user = await db.execute(select(User).filter(User.email == user.email.strip().lower()))
-    existing = existing_user.scalars().first()
-
-    if existing:
-        if existing.is_verified:
-            logger.info("Email уже зарегистрирован")
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email уже зарегистрирован")
-        else:
-            logger.info("Повторная регистрация")
-
-            # Повторная регистрация — обновляем данные
-            existing.username = user.username
-            existing.password = hash_password(user.password)
-            existing.ip_address = request.client.host
-            db_user = existing
-    else:
-        db_user = User(
-            email=user.email.strip().lower(),
-            username=user.username,
-            password=hash_password(user.password),
-            ip_address=request.client.host,
-            is_verified=False,
-            is_moderator=False
+        logger.info("Username уже занят")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username уже занят"
         )
-        db.add(db_user)
+
+    existing_email_query = await db.execute(select(User).filter(User.email == user.email.strip().lower()))
+    existing_email = existing_email_query.scalars().first()
+    if existing_email:
+        logger.info("Email уже занят")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Email уже занят"
+        )
+    
+    db_user = User(
+        email=user.email.strip().lower(),
+        username=user.username,
+        password=hash_password(user.password),
+        ip_address=request.client.host,
+        is_verified=False,
+        is_moderator=False
+    )
+    db.add(db_user)
+    await db.commit()
 
     # Генерация кода подтверждения
     logger.info("Генерируем код подтверждения")
     code = generate_auth_key()
+    await add_verification_code(email=db_user.email, code=code,)
     logger.info("Код сгенерирован успешно")
 
-    # Ищем или создаём запись подтверждения
-    logger.info("Ищем или создаём запись подтверждения")
-    conf_stmt = select(EmailConfirmation).filter(EmailConfirmation.email == user.email.strip().lower())
-    result = await db.execute(conf_stmt)
-    confirmation = result.scalars().first()
-
-    if confirmation:
-        confirmation.code = code
-        confirmation.expires_at = datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_EXPIRE)
-    else:
-        confirmation = EmailConfirmation(
-            email=user.email.strip().lower(),
-            code=code,
-            expires_at=datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_EXPIRE)
-        )
-        db.add(confirmation)
-
-    await db.commit()
-    logger.info("Успешно")
-
+    # Отправка кода подтверждения на почту
     logger.info("Создаем шаблон для сообщения")
     html_body = render_template("confirm_code.html", code=code)
-    logger.info("Шаблон успешно создан")
 
-    logger.info("Отправляем сообщение")
-    await send_email(
-        to=user.email,
-        subject="Код подтверждения",
-        body=html_body,
-        html=True
-    )
+    try:
+        logger.info("Отправляем сообщение")
+        await send_email(
+            to=user.email,
+            subject="Код подтверждения",
+            body=html_body,
+            html=True
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при отправке письма: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Не удалось отправить код подтверждения на почту"
+        )
 
     return {"message": "Код подтверждения отправлен на почту"}

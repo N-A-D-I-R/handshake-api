@@ -24,8 +24,8 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 ACCESS_TOKEN_EXPIRE = int(os.getenv("ACCESS_TOKEN_EXPIRATION"))
 REFRESH_TOKEN_EXPIRE = int(os.getenv("REFRESH_TOKEN_EXPIRATION"))
 
-# Verification expiration time
-VERIFICATION_EXPIRE = int(os.getenv("EMAIL_VERIFICATION_EXPIRATION"))
+# Code expiration time
+CODE_EXPIRATION = int(os.getenv("CODE_EXPIRATION")) * 60 # Convert minutes to seconds
 
 # Logging configuration
 SQL_LOGGING = os.getenv("SQL_LOGGING")

@@ -85,21 +85,6 @@ class Post(Base):
             f")>"
         )
 
-class EmailConfirmation(Base):
-    __tablename__ = "email_confirmations"
-
-    email = Column(String, primary_key=True, index=True)
-    code = Column(String, nullable=False)
-    expires_at = Column(DateTime(timezone=True), nullable=False)
-
-    def __repr__(self):
-        return (
-            f"<EmailConfirmation("
-            f"email={self.email}, "
-            f"expires_at={self.expires_at}, "
-            f")>"
-        )
-
 class ProfileChangeRequest(Base):
     __tablename__ = "profile_change_requests"
 

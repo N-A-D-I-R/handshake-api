@@ -1,6 +1,8 @@
-<html>
-<body style="font-family: sans-serif;">
-  <h2>🎉 Аккаунт подтверждён</h2>
+{% extends "base_email.html" %}
+
+{% block title %}Аккаунт подтверждён{% endblock %}
+
+{% block content %}
+  <h2 class="success">🎉 Аккаунт подтверждён</h2>
   <p>Ваш аккаунт успешно подтверждён. Добро пожаловать в наше сообщество!</p>
-</body>
-</html>
+{% endblock %}

@@ -16,7 +16,7 @@ from sqlalchemy import delete
 
 from datetime import datetime, timedelta, timezone
 
-from app.models import User, EmailConfirmation, Notification
+from app.models import User, Notification
 from app.database import get_db, init_db
 
 from contextlib import asynccontextmanager
@@ -42,11 +42,6 @@ async def lifespan(app: FastAPI):
                 # Удаляем неподтвержденных пользователей
                 await db.execute(
                     delete(User).where(User.is_verified == False)
-                )
-
-                # Удаляем просроченные подтверждения email
-                await db.execute(
-                    delete(EmailConfirmation).where(EmailConfirmation.expires_at < now)
                 )
 
                 # Удаляем уведомления старше месяца

@@ -1,5 +1,8 @@
-<html>
-<body style="font-family: sans-serif;">
+{% extends "base_email.html" %}
+
+{% block title %}Вход в аккаунт{% endblock %}
+
+{% block content %}
   <h2>🔐 Вход в аккаунт</h2>
   <p>Ваш аккаунт был использован для входа:</p>
   <ul>
@@ -8,5 +11,4 @@
     <li><strong>Устройство:</strong> {{ user_agent }}</li>
   </ul>
   <p>Если это были не вы — срочно измените пароль.</p>
-</body>
-</html>
+{% endblock %}

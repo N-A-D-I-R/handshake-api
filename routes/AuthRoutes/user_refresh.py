@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 
 from app.schemas import RefreshTokenResponse
-from app.utils import get_jwt_data, bearer_scheme
-from app.auth import create_access_token
+from app.dependencies import get_jwt_data, bearer_scheme
+from app.token import create_access_token
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
