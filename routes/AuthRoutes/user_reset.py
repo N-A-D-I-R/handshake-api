@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from app.models import User
 from app.schemas import EmailStr
+from app.schemas import MessageResponse
 from app.database import get_db
 from app.utils import generate_auth_key
 from app.redis import add_verification_code
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/reset", status_code=status.HTTP_200_OK, name="Восстановление аккаунта пользователя")
+@router.post("/reset", response_model=MessageResponse, status_code=status.HTTP_200_OK, name="Восстановление аккаунта пользователя")
 async def reset_password(
     email: EmailStr = Form(..., description="E-mail"),
     db: AsyncSession = Depends(get_db)
@@ -46,6 +47,7 @@ async def reset_password(
             body=html_body,
             html=True
         )
+        
     except Exception as e:
         logger.error(f"Ошибка при отправке письма: {e}")
         raise HTTPException(

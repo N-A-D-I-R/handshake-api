@@ -7,6 +7,7 @@ from pydantic import EmailStr
 from typing import Optional
 
 from app.models import User
+from app.schemas import MessageResponse
 from app.redis import save_email_change
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -16,7 +17,7 @@ from app.utils import generate_auth_key
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-@router.patch("/security/email", status_code=status.HTTP_200_OK, name="Смена почты пользователя")
+@router.patch("/security/email", response_model=MessageResponse, status_code=status.HTTP_200_OK, name="Смена почты пользователя")
 async def email_change(
     new_email: EmailStr = Form(..., description="Новый email"),
     db: AsyncSession = Depends(get_db),
@@ -47,4 +48,5 @@ async def email_change(
         body=html,
         html=True
     )
+    
     return {"message": "Код подтверждения отправлен на новый email"}
