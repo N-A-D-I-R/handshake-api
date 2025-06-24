@@ -1,4 +1,4 @@
-# GoBarter Backend
+# GoBarter
 
 Это бэкенд для проекта **GoBarter** — платформы для обмена товарами и услугами. Реализован с использованием **FastAPI**, **SQLAlchemy**, **Alembic** и других современных инструментов Python.
 
@@ -23,6 +23,8 @@ alembic upgrade head
 ```bash
 alembic revision --autogenerate -m "описание миграции"
 ```
+
+---
 
 ## 🚀 Запуск приложения
 
