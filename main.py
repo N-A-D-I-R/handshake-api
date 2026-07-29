@@ -17,7 +17,7 @@ from sqlalchemy import delete
 from datetime import datetime, timedelta, timezone
 
 from app.models import User, Notification
-from app.database import get_db, init_db
+from app.database import get_db
 
 from contextlib import asynccontextmanager
 
@@ -27,10 +27,6 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Функция lifespan, которая выполняет код при запуске и завершении приложения"""
-
-    logger.info("Инициализируем базу данных...")
-    await init_db()
-    logger.info("✅ База данных инициализирована")
 
     # Фоновая задача по удалению старых токенов
     async def cleanup():

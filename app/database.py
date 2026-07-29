@@ -25,15 +25,6 @@ engine = create_async_engine(
 SessionLocal = async_sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession)
 
-# Функция инициализации базы данных
-async def init_db():
-    async with engine.begin() as conn:
-        await conn.execute(text("""
-            CREATE EXTENSION IF NOT EXISTS pg_trgm;
-        """))
-
-        await conn.run_sync(Base.metadata.create_all)
-
 # Асинхронная зависимость для получения сессии БД
 async def get_db():
     async with SessionLocal() as session:

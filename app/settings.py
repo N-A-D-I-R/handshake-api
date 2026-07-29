@@ -8,11 +8,15 @@ JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 # DB configuration
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("POSTGRES_DB")
+DB_USER = os.getenv("POSTGRES_USER")
+DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DB_HOST = os.getenv("POSTGRES_HOST")
+DB_PORT = os.getenv("POSTGRES_PORT")
+
+# Redis configuration
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
 
 # SMTP configuration
 SMTP_SERVER = os.getenv("SMTP_SERVER")
@@ -32,4 +36,4 @@ SQL_LOGGING = os.getenv("SQL_LOGGING")
 DEBUG = os.getenv("DEBUG")
 
 POSTGRESQL_DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-REDIS_URL = "redis://localhost:6379"
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
