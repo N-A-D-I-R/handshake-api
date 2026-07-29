@@ -1,0 +1,40 @@
+services:
+  redis:
+    image: redis:7
+    restart: always
+    container_name: handshake-redis
+    ports:
+      - "6379:6379"
+  
+  nginx:
+    image: nginx:1.25
+    restart: always
+    container_name: handshake-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+      - certbot
+  
+  certbot:
+    image: certbot/certbot
+    restart: always
+    container_name: handshake-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+  
+  backend:
+    build: .
+    restart: always
+    container_name: handshake-api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis

@@ -1,0 +1,33 @@
+name: Deploy Handshake Database to Production
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy Database
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DB_SERVER_IP }}
+          username: ${{ secrets.DB_SERVER_USER }}
+          key: ${{ secrets.DB_SERVER_SSH_KEY }}
+
+          script: |
+            cd /opt/handshake-db
+
+            git pull origin main
+
+            cat > .env <<EOF
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+            SQL_LOGGING=${{ vars.SQL_LOGGING }}
+            DEBUG=${{ vars.DEBUG }}
+
+            docker-compose -f compose.database.yaml up -d --build --remove-orphans

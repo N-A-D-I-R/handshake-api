@@ -1,0 +1,44 @@
+name: Deploy Handshake API to Production
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+
+          script: |
+            cd /opt/handshake-api
+
+            git pull origin main
+
+            cat > .env <<EOF
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}
+            SMTP_SERVER=${{ secrets.SMTP_SERVER }}
+            SMTP_PORT=${{ vars.SMTP_PORT }}
+            SMTP_USER=${{ vars.SMTP_USER }}
+            SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            ACCESS_TOKEN_EXPIRATION=${{ vars.ACCESS_TOKEN_EXPIRATION }}
+            REFRESH_TOKEN_EXPIRATION=${{ vars.REFRESH_TOKEN_EXPIRATION }}
+            CODE_EXPIRATION=${{ vars.CODE_EXPIRATION }}
+            SQL_LOGGING=${{ vars.SQL_LOGGING }}
+            DEBUG=${{ vars.DEBUG }}
+
+            docker-compose -f compose.prod.yaml up -d --build --remove-orphans
