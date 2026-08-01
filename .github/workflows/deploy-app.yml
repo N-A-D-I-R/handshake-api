@@ -7,6 +7,8 @@ jobs:
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
+    environment:
+      name: development
 
     steps:
       - name: Deploy over SSH

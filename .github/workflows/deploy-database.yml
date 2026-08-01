@@ -7,13 +7,15 @@ jobs:
   deploy:
     name: Deploy Database
     runs-on: ubuntu-latest
+    environment:
+      name: development
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Copy compose file
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.DB_SERVER_IP }}
           username: ${{ secrets.DB_SERVER_USER }}
@@ -22,7 +24,7 @@ jobs:
           target: "/opt/handshake-db"
 
       - name: Deploy PostgreSQL
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DB_SERVER_IP }}
           username: ${{ secrets.DB_SERVER_USER }}
