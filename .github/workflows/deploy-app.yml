@@ -17,6 +17,7 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
 
           script: |
+            git clone git@github.com:N-A-D-I-R/handshake-api.git /opt/handshake-api
             cd /opt/handshake-api
 
             git pull origin main
@@ -24,9 +25,9 @@ jobs:
             cat > .env <<EOF
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}
-            SMTP_SERVER=${{ secrets.SMTP_SERVER }}
+            SMTP_SERVER=${{ vars.SMTP_SERVER }}
             SMTP_PORT=${{ vars.SMTP_PORT }}
-            SMTP_USER=${{ vars.SMTP_USER }}
+            SMTP_USER=${{ secrets.SMTP_USER }}
             SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
@@ -40,5 +41,6 @@ jobs:
             CODE_EXPIRATION=${{ vars.CODE_EXPIRATION }}
             SQL_LOGGING=${{ vars.SQL_LOGGING }}
             DEBUG=${{ vars.DEBUG }}
+            EOF
 
-            docker-compose -f compose.prod.yaml up -d --build --remove-orphans
+            docker compose -f compose.prod.yaml up -d --build --remove-orphans
