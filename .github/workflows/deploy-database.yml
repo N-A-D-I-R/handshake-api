@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.DB_SERVER_USER }}
           key: ${{ secrets.DB_SERVER_SSH_KEY }}
           source: "compose.database.yaml"
-          target: "/opt/handshake-db"
+          target: "/home/deploy/handshake-db"
 
       - name: Deploy PostgreSQL
         uses: appleboy/ssh-action@v1.2.0
@@ -31,7 +31,7 @@ jobs:
           key: ${{ secrets.DB_SERVER_SSH_KEY }}
 
           script: |
-            cd /opt/handshake-db
+            cd /home/deploy/handshake-db
 
             cat > .env <<EOF
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
