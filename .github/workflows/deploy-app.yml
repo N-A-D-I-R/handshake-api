@@ -79,10 +79,6 @@ jobs:
             mkdir -p /home/deploy/handshake-api/certbot/conf
             mkdir -p /home/deploy/handshake-api/certbot/www
 
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-            -u "${{ secrets.GHCR_USERNAME }}" \
-            --password-stdin
-
             cat > /home/deploy/handshake-api/.env <<EOF
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}
@@ -109,6 +105,11 @@ jobs:
             DEBUG=${{ vars.DEBUG }}
             EOF
 
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+            -u "${{ secrets.GHCR_USERNAME }}" \
+            --password-stdin
+
+            docker info | grep Username
 
             cd /home/deploy/handshake-api
 
