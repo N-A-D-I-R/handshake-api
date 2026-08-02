@@ -1,16 +1,61 @@
-name: Deploy Handshake API to Production
+name: Build Image and Deploy API
+
 on:
   push:
     branches:
       - main
+
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  deploy:
-    name: Deploy to Production
+  build:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     environment:
       name: development
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/handshake-api:latest
+            ghcr.io/${{ github.repository_owner }}/handshake-api:${{ github.sha }}
+
+  deploy:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy compose file
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+          source: "compose.prod.yaml,nginx.conf"
+          target: "/home/deploy/handshake-api"
+          
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -19,12 +64,8 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
 
           script: |
-            git clone git@github.com:N-A-D-I-R/handshake-api.git /home/deploy/handshake-api
-            cd /home/deploy/handshake-api
 
-            git pull origin main
-
-            cat > .env <<EOF
+            cat > /home/deploy/handshake-api/.env <<EOF
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}
             SMTP_SERVER=${{ vars.SMTP_SERVER }}
@@ -45,4 +86,7 @@ jobs:
             DEBUG=${{ vars.DEBUG }}
             EOF
 
-            docker compose -f compose.prod.yaml up -d --build --remove-orphans
+            cd /home/deploy/handshake-api
+
+            docker compose -f compose.prod.yaml pull
+            docker compose -f compose.prod.yaml up -d --remove-orphans

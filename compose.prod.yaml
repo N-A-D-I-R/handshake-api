@@ -28,7 +28,7 @@ services:
       - ./certbot/www:/var/www/certbot
   
   backend:
-    build: .
+    image: ghcr.io/n-a-d-i-r/handshake-api:latest
     restart: always
     container_name: handshake-api
     env_file:
