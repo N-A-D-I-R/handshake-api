@@ -109,7 +109,9 @@ jobs:
             -u "${{ secrets.GHCR_USERNAME }}" \
             --password-stdin
 
-            docker info | grep Username
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login \
+            -u "${{ secrets.DOCKER_USERNAME }}" \
+            --password-stdin
 
             cd /home/deploy/handshake-api
 
