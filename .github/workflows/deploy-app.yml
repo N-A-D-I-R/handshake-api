@@ -44,7 +44,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-
   deploy:
     name: Deploy to Production
     needs: build
@@ -56,7 +55,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
       - name: Copy infrastructure files
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -65,7 +63,6 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           source: "compose.prod.yaml,nginx.conf"
           target: "/home/deploy/handshake-api"
-
 
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -76,10 +73,12 @@ jobs:
 
           script: |
 
-            mkdir -p /home/deploy/handshake-api/certbot/conf
-            mkdir -p /home/deploy/handshake-api/certbot/www
+            APP_DIR="/home/deploy/handshake-api"
 
-            cat > /home/deploy/handshake-api/.env <<EOF
+            mkdir -p $APP_DIR/certbot/conf
+            mkdir -p $APP_DIR/certbot/www
+
+            cat > $APP_DIR/.env <<EOF
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}
 
@@ -105,16 +104,84 @@ jobs:
             DEBUG=${{ vars.DEBUG }}
             EOF
 
+            echo "Checking SSL certificate..."
+            CERT="$APP_DIR/certbot/conf/live/api.handshake.aucool.com/fullchain.pem"
+
+            #
+            # PHASE 1 - SSL bootstrap
+            #
+
+            if [ ! -f "$CERT" ]; then
+              echo "SSL certificate missing. Starting temporary nginx"
+              docker rm -f handshake-nginx-temp || true
+
+              mkdir -p $APP_DIR/nginx-temp
+
+              cat > $APP_DIR/nginx-temp/default.conf <<EOF
+              server {
+
+                  listen 80;
+                  server_name api.handshake.aucool.com;
+                  location /.well-known/acme-challenge/ {
+                      root /var/www/certbot;
+                  }
+
+                  location / {
+                      return 200 "temporary nginx";
+                  }
+
+              }
+              EOF
+
+              docker run -d \
+                --name handshake-nginx-temp \
+                -p 80:80 \
+                -v $APP_DIR/nginx-temp/default.conf:/etc/nginx/conf.d/default.conf:ro \
+                -v $APP_DIR/certbot/www:/var/www/certbot \
+                nginx:1.25
+
+              echo "Requesting certificate"
+              docker run --rm \
+                -v $APP_DIR/certbot/conf:/etc/letsencrypt \
+                -v $APP_DIR/certbot/www:/var/www/certbot \
+                certbot/certbot certonly \
+                --webroot \
+                --webroot-path=/var/www/certbot \
+                -d api.handshake.aucool.com \
+                --email ${{ secrets.LE_EMAIL }} \
+                --agree-tos \
+                --no-eff-email
+
+              docker rm -f handshake-nginx-temp
+
+            else
+              echo "Certificate exists. Renew check"
+              docker run --rm \
+                -v $APP_DIR/certbot/conf:/etc/letsencrypt \
+                certbot/certbot renew
+
+            fi
+
+            #
+            # PHASE 2 - Application deploy
+            #
+
+            echo "Login GHCR"
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-            -u "${{ secrets.GHCR_USERNAME }}" \
-            --password-stdin
+              -u "${{ secrets.GHCR_USERNAME }}" \
+              --password-stdin
 
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login \
-            -u "${{ secrets.DOCKER_USERNAME }}" \
-            --password-stdin
+              -u "${{ secrets.DOCKER_USERNAME }}" \
+              --password-stdin
 
-            cd /home/deploy/handshake-api
+            cd $APP_DIR
 
+            echo "Pull images"
             docker compose -f compose.prod.yaml pull
-
+            
+            echo "Start production stack"
             docker compose -f compose.prod.yaml up -d --remove-orphans
+
+            echo "Reload nginx"
+            docker exec handshake-nginx nginx -s reload || true
