@@ -107,14 +107,10 @@ jobs:
             echo "Checking SSL certificate..."
             CERT="$APP_DIR/certbot/conf/live/api.handshake.aucool.com/fullchain.pem"
 
-            #
-            # PHASE 1 - SSL bootstrap
-            #
-
+            echo "PHASE 1 - SSL bootstrap"
             if [ ! -f "$CERT" ]; then
               echo "SSL certificate missing. Starting temporary nginx"
               docker rm -f handshake-nginx-temp || true
-
               mkdir -p $APP_DIR/nginx-temp
 
               cat > $APP_DIR/nginx-temp/default.conf <<EOF
@@ -162,10 +158,7 @@ jobs:
 
             fi
 
-            #
-            # PHASE 2 - Application deploy
-            #
-
+            echo "PHASE 2 - Application deploy"
             echo "Login GHCR"
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
               -u "${{ secrets.GHCR_USERNAME }}" \
@@ -179,7 +172,7 @@ jobs:
 
             echo "Pull images"
             docker compose -f compose.prod.yaml pull
-            
+
             echo "Start production stack"
             docker compose -f compose.prod.yaml up -d --remove-orphans
 
