@@ -14,7 +14,7 @@ jobs:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     environment:
-      name: development
+      name: production
 
     steps:
       - name: Checkout repository
@@ -104,61 +104,31 @@ jobs:
             DEBUG=${{ vars.DEBUG }}
             ENVEOF
 
-            echo "Checking SSL certificate..."
+            echo "PHASE 1 - SSL bootstrap"
             CERT="$APP_DIR/certbot/conf/live/api.handshake.aucool.com/fullchain.pem"
 
-            echo "PHASE 1 - SSL bootstrap"
-
             if [ ! -f "$CERT" ]; then
-
-              echo "SSL certificate missing. Starting temporary nginx"
-              docker rm -f ${APP_NAME}-nginx-temp || true
-              mkdir -p $APP_DIR/nginx-temp
-              printf '%s\n' \
-            "server {
-                listen 80;
-                server_name api.handshake.aucool.com;
-
-                location /.well-known/acme-challenge/ {
-                    root /var/www/certbot;
-                }
-
-                location / {
-                    return 200 \"temporary nginx\";
-                }
-            }" > $APP_DIR/nginx-temp/default.conf
-
-              docker run -d \
-                --name ${APP_NAME}-nginx-temp \
-                -p 80:80 \
-                -v $APP_DIR/nginx-temp/default.conf:/etc/nginx/conf.d/default.conf:ro \
-                -v $APP_DIR/certbot/www:/var/www/certbot \
-                nginx:1.25
-
-              echo "Requesting certificate"
-              docker run --rm \
-                -v $APP_DIR/certbot/conf:/etc/letsencrypt \
-                -v $APP_DIR/certbot/www:/var/www/certbot \
-                certbot/certbot certonly \
-                --webroot \
-                --webroot-path=/var/www/certbot \
-                -d api.handshake.aucool.com \
-                --email "${{ secrets.LE_EMAIL }}" \
-                --agree-tos \
-                --no-eff-email
-
-              docker rm -f ${APP_NAME}-nginx-temp
+                echo "Bootstrap SSL"
+                docker run --rm \
+                  -p 80:80 \
+                  -v $APP_DIR/certbot/conf:/etc/letsencrypt \
+                  certbot/certbot certonly \
+                  --standalone \
+                  -d api.handshake.aucool.com \
+                  --email "${{ secrets.LE_EMAIL }}" \
+                  --agree-tos \
+                  --no-eff-email
 
             else
-
-              echo "Certificate exists. Renew check"
-              docker run --rm \
-                -v $APP_DIR/certbot/conf:/etc/letsencrypt \
-                certbot/certbot renew
+                echo "Renew SSL"
+                docker run --rm \
+                  -v $APP_DIR/certbot/conf:/etc/letsencrypt \
+                  certbot/certbot renew
 
             fi
 
             echo "PHASE 2 - Application deploy"
+
             echo "Login GHCR"
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
               -u "${{ secrets.GHCR_USERNAME }}" \
