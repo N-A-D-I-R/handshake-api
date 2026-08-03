@@ -127,7 +127,7 @@ jobs:
                   }
 
               }
-              EOF
+              NGINXEOF
 
               docker run -d \
                 --name handshake-nginx-temp \
